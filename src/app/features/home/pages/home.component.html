@@ -1,0 +1,31 @@
+<div class="home-container container">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="/" class="breadcrumb-item">Trang chủ</a>
+    <span class="breadcrumb-separator">›</span>
+    <span class="breadcrumb-item active">Luyện Thi THPT QG</span>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <h1 class="hero-title">Thi thử THPT Quốc Gia</h1>
+    <p class="hero-description">
+      Bộ đề thi thử THPT Quốc Gia các môn Toán, Lý, Hóa, Sinh, Sử, Địa, Giáo Dục Công Dân, Tiếng Anh với đề thi chọn lọc từ các trường và những dạng bài thi bám sát với chương trình thi đại học.
+    </p>
+  </section>
+
+  <!-- Subject Grid -->
+  <section class="subject-grid">
+    @for (subject of subjects; track subject.name) {
+      <div class="subject-card">
+        <div class="card-image-wrapper" [style.background-color]="subject.color">
+          <img [src]="subject.image" [alt]="subject.name" class="card-image" loading="lazy">
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">{{ subject.name }}</h3>
+          <p class="card-description">{{ subject.description }}</p>
+        </div>
+      </div>
+    }
+  </section>
+</div>

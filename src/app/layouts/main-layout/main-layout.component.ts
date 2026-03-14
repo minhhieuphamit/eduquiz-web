@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { HeaderComponent } from '../../shared/components/header/header.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 /**
  * Main Layout - Dùng cho các trang sau khi đăng nhập.
@@ -14,6 +17,7 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
+  imports: [RouterOutlet, HeaderComponent, FooterComponent],
   template: `
     <app-header></app-header>
     <main class="container">

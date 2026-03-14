@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 /**
  * Auth Layout - Dùng cho trang Login, Register, OTP, Forgot Password.
@@ -9,6 +10,7 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
+  imports: [RouterOutlet],
   template: `
     <div class="auth-container">
       <router-outlet></router-outlet>

@@ -1,11 +1,15 @@
-/**
- * AuthGuard - Chặn truy cập nếu chưa đăng nhập.
- * Nếu chưa login → redirect /auth/login
- * Angular 17+ dùng CanActivateFn (functional guard)
- *
- * TODO: Implement export const authGuard: CanActivateFn
- */
-export const authGuard = () => {
-  // TODO: Implement
-  return true;
+import { inject } from '@angular/core';
+import { Router, CanActivateFn } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+
+export const authGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (authService.currentUser()) {
+    return true;
+  }
+
+  router.navigate(['/']); // Redirect to home/login if not authenticated
+  return false;
 };
