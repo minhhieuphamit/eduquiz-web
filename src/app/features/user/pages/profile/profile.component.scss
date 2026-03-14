@@ -1,0 +1,232 @@
+.profile-page-wrapper {
+  background-color: var(--color-bg-light);
+  min-height: calc(100vh - 80px - 60px); // subtract header and footer roughly
+  padding: 40px 0;
+}
+
+.profile-header {
+  h2 {
+    font-family: var(--font-family-heading);
+    color: var(--color-text-main);
+    font-weight: 700;
+  }
+}
+
+.profile-card {
+  background-color: var(--color-bg-surface);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 40px;
+}
+
+.profile-layout {
+  display: flex;
+  gap: 40px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+/* Left Side - Avatar */
+.avatar-side {
+  flex: 0 0 220px;
+  
+  .avatar-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 4px solid var(--color-border);
+    }
+    
+    .btn-camera {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background-color: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+      color: var(--color-text-main);
+      
+      &:hover {
+        background-color: var(--color-bg-light);
+      }
+    }
+  }
+
+  .user-email {
+    font-size: 1rem;
+    color: var(--color-text-main);
+    word-break: break-all;
+  }
+}
+
+/* Right Side - Forms */
+.form-side {
+  flex: 1;
+}
+
+.grid-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(max-content, 1fr));
+  gap: 30px;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Input Styles overrides if necessary */
+.form-group {
+  margin-bottom: 0; // handled by grid gap
+}
+
+.input-icon-wrapper {
+  position: relative;
+  width: 100%;
+  display: block;
+  
+  .input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .custom-date-display {
+    position: absolute;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-main);
+    z-index: 2;
+    pointer-events: none;
+    font-size: 1rem;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 12px 16px 12px 40px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-bg-surface);
+    color: var(--color-text-main);
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: all var(--transition-base);
+    
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+    
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary-blue-light);
+      box-shadow: 0 0 0 3px rgba(43, 132, 234, 0.1);
+    }
+  }
+
+  /* Hack to force dd/mm/yyyy on native date input */
+  input[type="date"].date-custom {
+    color: transparent; /* Hide native OS localized text */
+    position: relative;
+    z-index: 1; /* Sit under the absolute custom-date-display */
+    background: transparent; /* let span show through */
+    
+    /* Ensure no background selection color or text is visible */
+    &::-webkit-datetime-edit,
+    &::-webkit-datetime-edit-fields-wrapper,
+    &::-webkit-datetime-edit-text,
+    &::-webkit-datetime-edit-month-field,
+    &::-webkit-datetime-edit-day-field,
+    &::-webkit-datetime-edit-year-field {
+      color: transparent !important;
+      background: transparent !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+  }
+
+  input[type="date"].date-custom:focus {
+    color: transparent;
+    outline: none; /* prevent focus outline from disrupting the span styling */
+  }
+  input[type="date"].date-custom::-webkit-datetime-edit {
+    color: transparent; 
+  }
+  
+  input[type="date"].date-custom::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    background: transparent;
+    z-index: 4; /* Keep the calendar icon clickable and on top */
+  }
+  
+  select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+}
+
+/* Radio buttons */
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-main);
+  font-size: 0.95rem;
+  cursor: pointer;
+  
+  input[type="radio"] {
+    accent-color: var(--color-primary-orange);
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// No empty rulesets
+
+.btn-password-change {
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-main);
+  padding: 8px 16px;
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all var(--transition-base);
+
+  &:hover {
+    background: #e2e8f0;
+  }
+}
+
+.password-form {
+  width: 100%;
+}

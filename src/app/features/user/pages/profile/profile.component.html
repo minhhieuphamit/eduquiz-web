@@ -1,0 +1,186 @@
+<div class="profile-page-wrapper">
+  <!-- Replaced inline styles with newly added global utility classes -->
+  <div class="container d-flex flex-column align-items-center mx-auto">
+
+    <div class="profile-header mb-4 w-100 text-center">
+      <h2 class="fs-4 fw-bold text-dark mb-0 w-100">
+        {{ currentTab() === 'profile' ? 'Thông tin cá nhân' : 'Đổi mật khẩu' }}
+      </h2>
+    </div>
+
+    <div class="profile-wrapper-inner w-100 mx-auto" style="max-width: 1150px;">
+      <div class="profile-card py-2">
+        <div class="profile-layout d-flex gap-4 align-items-start">
+
+          <!-- Left Side: Avatar Panel -->
+          <div class="avatar-side d-flex flex-column align-items-center" style="min-width: 250px; flex-shrink: 0;">
+            <div class="avatar-container mx-auto" style="position: relative;">
+              <img class="avatar-img"
+                [src]="'https://ui-avatars.com/api/?name=' + (authService.currentUser()?.email || 'User').charAt(0).toUpperCase() + '&background=ff7a33&color=fff&size=150'"
+                alt="Avatar" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
+              <button class="btn btn-icon btn-camera" title="Đổi ảnh đại diện" style="position: absolute; bottom: 0; right: 0;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+                  <circle cx="12" cy="13" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Side: Forms -->
+          <div class="form-side w-100" style="flex: 1;">
+
+            @if (errorMsg()) {
+            <div class="alert alert-error">{{ errorMsg() }}</div>
+            }
+
+            @if (currentTab() === 'profile') {
+            <form class="profile-form w-100" (ngSubmit)="onProfileSubmit()">
+              <div class="grid-form mb-4">
+
+                <div class="form-group w-100">
+                  <div class="input-icon-wrapper">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <input type="text" class="form-control" placeholder="Họ đệm" [(ngModel)]="profileData.firstName"
+                      name="firstName" required>
+                  </div>
+                </div>
+
+                <div class="form-group w-100">
+                  <div class="input-icon-wrapper">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <input type="text" class="form-control" placeholder="Tên" [(ngModel)]="profileData.lastName"
+                      name="lastName" required>
+                  </div>
+                </div>
+
+                <div class="form-group w-100">
+                  <div class="input-icon-wrapper">
+                     <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <input type="email" class="form-control text-muted border-0 bg-light" placeholder="Email"
+                     [value]="profileData.email" readonly disabled>
+                  </div>
+                </div>
+
+                <div class="form-group w-100">
+                  <div class="input-icon-wrapper">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    <input type="text" class="form-control text-muted border-0 bg-light" placeholder="Vai trò"
+                     [value]="profileData.role === 'ROLE_USER' ? 'Học viên' : profileData.role === 'ROLE_ADMIN' ? 'Quản trị viên' : profileData.role" readonly disabled>
+                  </div>
+                </div>
+
+                <div class="form-group w-100">
+                  <div class="input-icon-wrapper">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                      <line x1="16" x2="16" y1="2" y2="6" />
+                      <line x1="8" x2="8" y1="2" y2="6" />
+                      <line x1="3" x2="21" y1="10" y2="10" />
+                    </svg>
+                    <span class="custom-date-display">{{ getFormattedDate() }}</span>
+                    <input type="date" class="form-control date-custom" 
+                      [(ngModel)]="profileData.dob" name="dob" (change)="onDateChange($event)" lang="en-GB">
+                  </div>
+                </div>
+
+                <div class="form-group w-100">
+                  <div class="input-icon-wrapper">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                    <input type="tel" class="form-control" placeholder="Nhập số điện thoại của bạn"
+                      [(ngModel)]="profileData.phoneNumber" name="phoneNumber">
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="form-actions mt-4 w-100 d-flex justify-content-end align-items-center">
+                <button type="submit" class="btn btn-primary-orange me-1" [disabled]="isLoading()">
+                  {{ isLoading() ? 'Đang cập nhật...' : 'Cập nhật' }}
+                </button>
+              </div>
+            </form>
+            } @else if (currentTab() === 'password') {
+            <form class="password-form w-100" (ngSubmit)="onPasswordSubmit()">
+
+              <div class="grid-form mb-4">
+                <div class="form-group w-100" style="grid-column: 1 / -1; max-width: 400px;">
+                  <div class="input-icon-wrapper">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <input type="password" class="form-control" placeholder="Mật khẩu hiện tại"
+                      [(ngModel)]="passwordData.currentPassword" name="currentPassword" required>
+                  </div>
+                </div>
+
+                <div class="form-group w-100" style="grid-column: 1 / -1; max-width: 400px;">
+                  <div class="input-icon-wrapper">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                    <input type="password" class="form-control" placeholder="Mật khẩu mới"
+                      [(ngModel)]="passwordData.newPassword" name="newPassword" required>
+                  </div>
+                </div>
+
+                <div class="form-group w-100" style="grid-column: 1 / -1; max-width: 400px;">
+                  <div class="input-icon-wrapper">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                    <input type="password" class="form-control" placeholder="Nhập lại mật khẩu mới"
+                      [(ngModel)]="passwordData.confirmPassword" name="confirmPassword" required
+                      [disabled]="otpRequested()">
+                  </div>
+                </div>
+
+                @if (otpRequested()) {
+                <div class="form-group w-100" style="grid-column: 1 / -1; max-width: 400px;">
+                  <div class="input-icon-wrapper">
+                    <input type="text" class="form-control text-center text-dark" placeholder="Nhập OTP 6 số"
+                      [(ngModel)]="otp" name="otp" required maxlength="6" style="padding-left: 16px; font-weight: bold; letter-spacing: 5px;">
+                  </div>
+                </div>
+                }
+              </div>
+
+              <div class="form-actions mt-4 w-100 d-flex justify-content-end align-items-center" style="max-width: 400px;">
+                <button type="submit" class="btn btn-primary-orange" [disabled]="isLoading()">
+                  {{ isLoading() ? 'Đang gửi...' : (otpRequested() ? 'Xác nhận OTP' : 'Gửi yêu cầu') }}
+                </button>
+              </div>
+            </form>
+            }
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

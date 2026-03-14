@@ -9,4 +9,4 @@ import { Component } from '@angular/core';
   standalone: true,
   template: '<p>confirm-dialog works!</p>',
 })
-export class confirm-dialogComponent {}
+export class ConfirmDialogComponent {}

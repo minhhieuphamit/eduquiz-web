@@ -49,8 +49,17 @@
  * TODO: Implement Routes[]
  */
 import { Routes } from '@angular/router';
+import { HomeComponent } from './features/home/pages/home.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  // TODO: Implement routing
-  { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
+  { path: '', component: HomeComponent, title: 'EduQuiz - Luyện thi & Đánh giá năng lực' },
+  { 
+    path: 'profile', 
+    loadComponent: () => import('./features/user/pages/profile/profile.component').then(m => m.ProfileComponent), 
+    canActivate: [authGuard],
+    title: 'Thông tin cá nhân - EduQuiz' 
+  },
+  // Additional routes will go here
+  { path: '**', redirectTo: '' }
 ];

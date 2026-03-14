@@ -1,0 +1,176 @@
+@if (modalService.isOpen()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+
+      <!-- LOGIN VIEW -->
+      @if (modalService.currentView() === 'login') {
+        <div class="modal-content">
+          <h2 class="modal-title">Đăng nhập</h2>
+          
+          @if (errorMsg()) {
+            <div class="alert alert-error">{{ errorMsg() }}</div>
+          }
+
+          <form class="auth-form" (ngSubmit)="onLoginSubmit()">
+            <div class="form-group">
+              <div class="input-icon-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <input type="email" class="form-control" placeholder="Nhập email" [(ngModel)]="loginData.email" name="email" required [disabled]="isLoading()">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <div class="input-icon-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="password" class="form-control" placeholder="Nhập mật khẩu" [(ngModel)]="loginData.password" name="password" required [disabled]="isLoading()">
+              </div>
+            </div>
+
+            <div class="form-actions-row">
+              <a href="#" class="forgot-link">Quên mật khẩu</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary-orange btn-block btn-lg" [disabled]="isLoading()">
+              {{ isLoading() ? 'Đang xử lý...' : 'Đăng nhập' }}
+            </button>
+          </form>
+
+          <div class="divider">
+            <span>HOẶC</span>
+          </div>
+
+          <button class="btn btn-outline-gray btn-block btn-google">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo">
+            Đăng nhập với Google
+          </button>
+
+          <p class="auth-switch">Bạn chưa có tài khoản? <a href="javascript:void(0)" (click)="switchView('register')">Đăng ký ngay</a></p>
+        </div>
+      }
+
+      <!-- REGISTER VIEW -->
+      @if (modalService.currentView() === 'register') {
+        <div class="modal-content register-content">
+          <h2 class="modal-title">Tạo Tài Khoản</h2>
+
+          <form class="auth-form" (ngSubmit)="onRegisterSubmit()">
+            <div class="form-group">
+              <div class="input-icon-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <input type="text" class="form-control" placeholder="Họ đệm" [(ngModel)]="registerData.firstName" name="firstName" required [disabled]="isLoading()">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <div class="input-icon-wrapper">
+                 <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <input type="text" class="form-control" placeholder="Tên" [(ngModel)]="registerData.lastName" name="lastName" required [disabled]="isLoading()">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="input-icon-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                <input type="email" class="form-control" placeholder="Email" [(ngModel)]="registerData.email" name="email" required [disabled]="isLoading()">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="input-icon-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <input type="tel" class="form-control" placeholder="Số điện thoại" [(ngModel)]="registerData.phoneNumber" name="phoneNumber" [disabled]="isLoading()">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="input-icon-wrapper" style="width: 100%;">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control" placeholder="Ngày sinh" [(ngModel)]="registerData.dob" name="dob" required [disabled]="isLoading()">
+              </div>
+            </div>
+            
+            <div class="form-group">
+               <div class="input-icon-wrapper select-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <select class="form-control" [(ngModel)]="registerData.role" name="role" required [disabled]="isLoading()">
+                   <option value="STUDENT">Học sinh</option>
+                   <option value="TEACHER">Giáo viên</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="input-icon-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="password" class="form-control" placeholder="Nhập mật khẩu" [(ngModel)]="registerData.password" name="password" required [disabled]="isLoading()">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="input-icon-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="password" class="form-control" placeholder="Nhập lại mật khẩu" [(ngModel)]="registerData.confirmPassword" name="confirmPassword" required [disabled]="isLoading()">
+              </div>
+            </div>
+            
+            <div class="form-submit-row">
+                <button type="submit" class="btn btn-primary-orange btn-lg" [disabled]="isLoading()">
+                  {{ isLoading() ? 'Đang đăng ký...' : 'Đăng ký ngay' }}
+                </button>
+            </div>
+          </form>
+
+          <div class="divider">
+            <span>Hoặc</span>
+          </div>
+
+          <div class="auth-social-center">
+             <button class="btn btn-outline-gray btn-google">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo">
+                Đăng nhập với Google
+            </button>
+          </div>
+
+          <p class="auth-switch">Bạn đã có tài khoản? <a href="javascript:void(0)" (click)="switchView('login')">Đăng nhập ngay</a></p>
+        </div>
+      }
+
+      <!-- OTP VIEW -->
+      @if (modalService.currentView() === 'otp') {
+        <div class="modal-content">
+          <h2 class="modal-title">Xác thực Email</h2>
+          
+          <div style="width: 120px; height: 120px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              <path d="m9 15 2 2 4-4" opacity="0.9"/>
+            </svg>
+          </div>
+          
+          <p class="auth-switch" style="margin-top: 0; margin-bottom: 1.5rem; text-align: center;">Mã xác thực 6 số đã được gửi tới email <strong>{{ otpData.email }}</strong>.</p>
+          
+          @if (errorMsg()) {
+            <div class="alert alert-error">{{ errorMsg() }}</div>
+          }
+
+          <form class="auth-form" (ngSubmit)="onVerifyOtpSubmit()">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Nhập mã OTP (6 số)" [(ngModel)]="otpData.otp" name="otp" required maxlength="6" [disabled]="isLoading()" style="text-align: center; letter-spacing: 5px; font-weight: bold; font-size: 1.2rem; padding: 12px 16px;">
+            </div>
+
+            <button type="submit" class="btn btn-primary-orange btn-block btn-lg" [disabled]="isLoading()">
+              {{ isLoading() ? 'Đang xác thực...' : 'Xác thực mã' }}
+            </button>
+          </form>
+
+          <p class="auth-switch">Chưa nhận được mã? <a href="javascript:void(0)" (click)="resendOtp()" [class.disabled]="isLoading()">Gửi lại mã</a></p>
+          <p class="auth-switch" style="margin-top: 5px;"><a href="javascript:void(0)" (click)="switchView('login')">Quay lại đăng nhập</a></p>
+        </div>
+      }
+    </div>
+  </div>
+}
