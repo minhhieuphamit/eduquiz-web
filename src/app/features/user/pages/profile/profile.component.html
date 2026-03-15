@@ -31,10 +31,6 @@
           <!-- Right Side: Forms -->
           <div class="form-side w-100" style="flex: 1;">
 
-            @if (errorMsg()) {
-            <div class="alert alert-error">{{ errorMsg() }}</div>
-            }
-
             @if (currentTab() === 'profile') {
             <form class="profile-form w-100" (ngSubmit)="onProfileSubmit()">
               <div class="grid-form mb-4">
