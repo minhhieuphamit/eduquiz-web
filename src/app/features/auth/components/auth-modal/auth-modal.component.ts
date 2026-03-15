@@ -31,12 +31,14 @@ export class AuthModalComponent {
     role: 'STUDENT' 
   };
   otpData = { email: '', otp: '' };
+  forgotData = { email: '' };
+  resetData = { otp: '', newPassword: '', confirmPassword: '' };
 
   closeModal() {
     this.modalService.close();
   }
 
-  switchView(view: 'login' | 'register' | 'otp') {
+  switchView(view: 'login' | 'register' | 'otp' | 'forgot-password' | 'reset-password') {
     this.modalService.switchView(view);
   }
 
@@ -182,6 +184,77 @@ export class AuthModalComponent {
   resendOtp() {
     this.isLoading.set(true);
     this.authService.resendOtp(this.otpData.email).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        toast.success('Mã OTP mới đã được gửi đến email của bạn.');
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        toast.error(err.error?.message || 'Không thể gửi lại mã OTP. Vui lòng thử lại sau.');
+      }
+    });
+  }
+
+  onForgotPasswordSubmit() {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!this.forgotData.email || !emailRegex.test(this.forgotData.email)) {
+      toast.warning('Vui lòng nhập email hợp lệ.');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.authService.forgotPassword(this.forgotData.email).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        toast.success('Mã OTP đã được gửi đến email của bạn.');
+        this.resetData = { otp: '', newPassword: '', confirmPassword: '' };
+        this.switchView('reset-password');
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        toast.error(err.error?.message || 'Không thể gửi yêu cầu. Vui lòng kiểm tra lại email.');
+      }
+    });
+  }
+
+  onResetPasswordSubmit() {
+    if (!this.resetData.otp || this.resetData.otp.length !== 6) {
+      toast.warning('Vui lòng nhập mã OTP 6 số.');
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(this.resetData.newPassword)) {
+      toast.warning('Mật khẩu phải chứa ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt (@$!%*?&).');
+      return;
+    }
+
+    if (this.resetData.newPassword !== this.resetData.confirmPassword) {
+      toast.warning('Mật khẩu xác nhận không khớp.');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.authService.resetPassword({
+      email: this.forgotData.email,
+      otp: this.resetData.otp,
+      newPassword: this.resetData.newPassword
+    }).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        toast.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập.');
+        this.switchView('login');
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        toast.error(err.error?.message || 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.');
+      }
+    });
+  }
+
+  resendForgotOtp() {
+    this.isLoading.set(true);
+    this.authService.forgotPassword(this.forgotData.email).subscribe({
       next: () => {
         this.isLoading.set(false);
         toast.success('Mã OTP mới đã được gửi đến email của bạn.');
