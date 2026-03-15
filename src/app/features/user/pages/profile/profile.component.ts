@@ -27,8 +27,6 @@ export class ProfileComponent implements OnInit {
       }
     });
   }
-  errorMsg = signal('');
-  
   // Profile Form Model
   profileData = {
     firstName: '',
@@ -117,11 +115,9 @@ export class ProfileComponent implements OnInit {
   }
 
   onProfileSubmit() {
-    this.errorMsg.set('');
-
     // Validate required logic
     if (!this.profileData.firstName?.trim() || !this.profileData.lastName?.trim()) {
-      this.errorMsg.set('Họ và tên không được để trống.');
+      toast.warning('Họ và tên không được để trống.');
       return;
     }
 
@@ -162,16 +158,14 @@ export class ProfileComponent implements OnInit {
   otp = '';
 
   onPasswordSubmit() {
-    this.errorMsg.set('');
-
     if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
-      this.errorMsg.set('Mật khẩu xác nhận không khớp.');
+      toast.warning('Mật khẩu xác nhận không khớp.');
       return;
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(this.passwordData.newPassword)) {
-      this.errorMsg.set('Mật khẩu mới phải đủ mạnh (hoa, thường, số, ký tự đặc biệt).');
+      toast.warning('Mật khẩu mới phải đủ mạnh (hoa, thường, số, ký tự đặc biệt).');
       return;
     }
 
@@ -195,7 +189,7 @@ export class ProfileComponent implements OnInit {
       });
     } else {
       if (!this.otp) {
-         this.errorMsg.set('Vui lòng nhập mã OTP');
+         toast.warning('Vui lòng nhập mã OTP.');
          this.isLoading.set(false);
          return;
       }
@@ -218,7 +212,6 @@ export class ProfileComponent implements OnInit {
 
   setTab(tab: 'profile' | 'password') {
     this.currentTab.set(tab);
-    this.errorMsg.set('');
     this.otpRequested.set(false);
     this.otp = '';
   }

@@ -17,7 +17,6 @@ export class AuthModalComponent {
   authService = inject(AuthService);
 
   isLoading = signal(false);
-  errorMsg = signal('');
 
   // Form Models
   loginData = { email: '', password: '' };
@@ -35,25 +34,21 @@ export class AuthModalComponent {
 
   closeModal() {
     this.modalService.close();
-    this.errorMsg.set('');
   }
 
   switchView(view: 'login' | 'register' | 'otp') {
-    this.errorMsg.set('');
     this.modalService.switchView(view);
   }
 
   onLoginSubmit() {
-    this.errorMsg.set('');
-
     // Basic Login Validation
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!this.loginData.email || !emailRegex.test(this.loginData.email)) {
-      this.errorMsg.set('Email không đúng định dạng.');
+      toast.warning('Email không đúng định dạng.');
       return;
     }
     if (!this.loginData.password) {
-      this.errorMsg.set('Vui lòng nhập mật khẩu.');
+      toast.warning('Vui lòng nhập mật khẩu.');
       return;
     }
 
@@ -168,7 +163,6 @@ export class AuthModalComponent {
   }
 
   onVerifyOtpSubmit() {
-    this.errorMsg.set('');
     this.isLoading.set(true);
 
     this.authService.verifyOtp(this.otpData).subscribe({
@@ -186,7 +180,6 @@ export class AuthModalComponent {
   }
 
   resendOtp() {
-    this.errorMsg.set('');
     this.isLoading.set(true);
     this.authService.resendOtp(this.otpData.email).subscribe({
       next: () => {

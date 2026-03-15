@@ -9,10 +9,6 @@
       @if (modalService.currentView() === 'login') {
         <div class="modal-content">
           <h2 class="modal-title">Đăng nhập</h2>
-          
-          @if (errorMsg()) {
-            <div class="alert alert-error">{{ errorMsg() }}</div>
-          }
 
           <form class="auth-form" (ngSubmit)="onLoginSubmit()">
             <div class="form-group">
@@ -152,10 +148,6 @@
           </div>
           
           <p class="auth-switch" style="margin-top: 0; margin-bottom: 1.5rem; text-align: center;">Mã xác thực 6 số đã được gửi tới email <strong>{{ otpData.email }}</strong>.</p>
-          
-          @if (errorMsg()) {
-            <div class="alert alert-error">{{ errorMsg() }}</div>
-          }
 
           <form class="auth-form" (ngSubmit)="onVerifyOtpSubmit()">
             <div class="form-group">
