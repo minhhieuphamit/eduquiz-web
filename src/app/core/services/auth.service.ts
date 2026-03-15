@@ -104,4 +104,12 @@ export class AuthService {
   confirmPasswordChange(data: object): Observable<ApiResponse<void>> {
     return this.http.post<ApiResponse<void>>(`${this.apiUrl}/password-change/confirm`, data, { headers: this.getHeaders(true) });
   }
+
+  forgotPassword(email: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/forgot-password`, { email }, { headers: this.getHeaders() });
+  }
+
+  resetPassword(data: { email: string; otp: string; newPassword: string }): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/reset-password`, data, { headers: this.getHeaders() });
+  }
 }
