@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toast } from 'ngx-sonner';
 import { AuthModalService } from '../../../../core/services/auth-modal.service';
-import { AuthService } from '../../../../core/services/auth.service';
+import { AuthService, getAuthErrorMessage, validatePassword } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-auth-modal',
@@ -72,7 +72,7 @@ export class AuthModalComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        toast.error(err.error?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.');
+        toast.error(getAuthErrorMessage(err));
         console.error('Login error', err);
       }
     });
@@ -124,10 +124,9 @@ export class AuthModalComponent {
       return;
     }
 
-    // Front-end Regex Validation for Password
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(this.registerData.password)) {
-      toast.warning('Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt (@$!%*?&)');
+    const pwdError = validatePassword(this.registerData.password);
+    if (pwdError) {
+      toast.warning(pwdError);
       return;
     }
 
@@ -158,7 +157,7 @@ export class AuthModalComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        toast.error(err.error?.message || 'Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.');
+        toast.error(getAuthErrorMessage(err));
         console.error('Register error', err);
       }
     });
@@ -175,7 +174,7 @@ export class AuthModalComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        toast.error(err.error?.message || 'Mã OTP không hợp lệ hoặc đã hết hạn.');
+        toast.error(getAuthErrorMessage(err));
         console.error('OTP error', err);
       }
     });
@@ -190,7 +189,7 @@ export class AuthModalComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        toast.error(err.error?.message || 'Không thể gửi lại mã OTP. Vui lòng thử lại sau.');
+        toast.error(getAuthErrorMessage(err));
       }
     });
   }
@@ -212,7 +211,7 @@ export class AuthModalComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        toast.error(err.error?.message || 'Không thể gửi yêu cầu. Vui lòng kiểm tra lại email.');
+        toast.error(getAuthErrorMessage(err));
       }
     });
   }
@@ -223,9 +222,9 @@ export class AuthModalComponent {
       return;
     }
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(this.resetData.newPassword)) {
-      toast.warning('Mật khẩu phải chứa ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt (@$!%*?&).');
+    const pwdError = validatePassword(this.resetData.newPassword);
+    if (pwdError) {
+      toast.warning(pwdError);
       return;
     }
 
@@ -247,7 +246,7 @@ export class AuthModalComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        toast.error(err.error?.message || 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.');
+        toast.error(getAuthErrorMessage(err));
       }
     });
   }
@@ -261,7 +260,7 @@ export class AuthModalComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        toast.error(err.error?.message || 'Không thể gửi lại mã OTP. Vui lòng thử lại sau.');
+        toast.error(getAuthErrorMessage(err));
       }
     });
   }

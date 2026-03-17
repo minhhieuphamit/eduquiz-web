@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toast } from 'ngx-sonner';
-import { AuthService, UserInfo } from '../../../../core/services/auth.service';
+import { AuthService, UserInfo, getAuthErrorMessage, validatePassword } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-profile',
@@ -149,7 +149,7 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        toast.error(err.error?.message || 'Cập nhật thất bại. Vui lòng thử lại sau.');
+        toast.error(getAuthErrorMessage(err));
       }
     });
   }
@@ -163,9 +163,9 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(this.passwordData.newPassword)) {
-      toast.warning('Mật khẩu mới phải đủ mạnh (hoa, thường, số, ký tự đặc biệt).');
+    const pwdError = validatePassword(this.passwordData.newPassword);
+    if (pwdError) {
+      toast.warning(pwdError);
       return;
     }
 
@@ -184,7 +184,7 @@ export class ProfileComponent implements OnInit {
         },
         error: (err: any) => {
           this.isLoading.set(false);
-          toast.error(err.error?.message || 'Yêu cầu đổi mật khẩu thất bại.');
+          toast.error(getAuthErrorMessage(err));
         }
       });
     } else {
@@ -204,7 +204,7 @@ export class ProfileComponent implements OnInit {
         },
         error: (err: any) => {
           this.isLoading.set(false);
-          toast.error(err.error?.message || 'Xác nhận OTP thất bại.');
+          toast.error(getAuthErrorMessage(err));
         }
       });
     }

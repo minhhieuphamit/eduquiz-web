@@ -8,8 +8,9 @@ export interface RegisterRequest {
   password: string;
   firstName: string;
   lastName: string;
-  birthYear: number;
-  roleName: string; // STUDENT | TEACHER
+  dob: string;          // ISO date string, e.g. "2000-01-01"
+  phoneNumber?: string;
+  role: string;         // STUDENT | TEACHER
 }
 
 export interface VerifyOtpRequest {
@@ -35,16 +36,17 @@ export interface ResetPasswordRequest {
 }
 
 export interface ChangePasswordInitRequest {
-  // empty - server uses current user
+  oldPassword: string;
+  newPassword: string;
 }
 
 export interface ChangePasswordRequest {
   otp: string;
-  newPassword: string;
 }
 
 export interface UpdateProfileRequest {
-  firstName: string;
-  lastName: string;
-  birthYear: number;
+  firstName?: string;
+  lastName?: string;
+  dob?: string;
+  phoneNumber?: string;
 }

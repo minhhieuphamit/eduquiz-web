@@ -1,9 +1,10 @@
 export interface User {
-  id: number;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
-  birthYear: number;
+  dob: string;
+  phoneNumber?: string;
   role: Role;
   isActive: boolean;
   emailVerified: boolean;
@@ -11,6 +12,6 @@ export interface User {
 }
 
 export interface Role {
-  id: number;
+  id: string;
   name: 'STUDENT' | 'TEACHER' | 'ADMIN';
 }
