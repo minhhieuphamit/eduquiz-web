@@ -1,9 +1,9 @@
 <div class="home-container container">
   <!-- Breadcrumb -->
-  <nav class="breadcrumb">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
     <a href="/" class="breadcrumb-item">Trang chủ</a>
-    <span class="breadcrumb-separator">›</span>
-    <span class="breadcrumb-item active">Luyện Thi THPT QG</span>
+    <span class="breadcrumb-separator" aria-hidden="true">›</span>
+    <span class="breadcrumb-item active" aria-current="page">Luyện Thi THPT QG</span>
   </nav>
 
   <!-- Hero Section -->
@@ -14,18 +14,63 @@
     </p>
   </section>
 
-  <!-- Subject Grid -->
-  <section class="subject-grid">
-    @for (subject of subjects; track subject.name) {
-      <div class="subject-card">
-        <div class="card-image-wrapper" [style.background-color]="subject.color">
-          <img [src]="subject.image" [alt]="subject.name" class="card-image" loading="lazy">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <section class="subject-grid">
+      @for (i of [1,2,3,4,5,6,7,8]; track i) {
+        <div class="subject-card skeleton-card">
+          <div class="card-icon-wrapper skeleton-icon"></div>
+          <div class="card-content">
+            <div class="skeleton-title"></div>
+            <div class="skeleton-desc"></div>
+            <div class="skeleton-desc short"></div>
+          </div>
         </div>
-        <div class="card-content">
-          <h3 class="card-title">{{ subject.name }}</h3>
-          <p class="card-description">{{ subject.description }}</p>
-        </div>
+      }
+    </section>
+  }
+
+  <!-- Error State -->
+  @if (hasError() && !isLoading()) {
+    <div class="error-state">
+      <div class="error-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
       </div>
-    }
-  </section>
+      <p class="error-message">Không thể tải danh sách môn học. Vui lòng thử lại.</p>
+      <button class="btn-retry" (click)="retry()">Thử lại</button>
+    </div>
+  }
+
+  <!-- Subject Grid -->
+  @if (!isLoading() && !hasError() && subjects().length > 0) {
+    <section class="subject-grid">
+      @for (subject of subjects(); track subject.id) {
+        <a class="subject-card" [attr.aria-label]="'Môn ' + subject.name">
+          <div class="card-icon-wrapper" [style.background-color]="getColor(subject)">
+            <div class="card-icon" [innerHTML]="getIcon(subject)"></div>
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">{{ subject.name }}</h3>
+            <p class="card-description">{{ subject.description }}</p>
+          </div>
+        </a>
+      }
+    </section>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && !hasError() && subjects().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+        </svg>
+      </div>
+      <p class="empty-message">Chưa có môn học nào. Vui lòng quay lại sau.</p>
+    </div>
+  }
 </div>

@@ -1,14 +1,23 @@
-export interface Subject {
-  id: number;
+export interface SubjectResponse {
+  id: string;
   name: string;
   description: string;
-  icon: string;
-  defaultDurationMinutes: number;
+  icon: string | null;
+  defaultDurationMinutes: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubjectRequest {
+  name: string;
+  description?: string;
+  icon?: string;
+  defaultDurationMinutes?: number;
 }
 
 export interface Chapter {
-  id: number;
-  subjectId: number;
+  id: string;
+  subjectId: string;
   name: string;
   orderIndex: number;
 }
