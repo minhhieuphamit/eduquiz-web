@@ -34,19 +34,13 @@
  *   /teacher/rooms/:id        → RoomDetailComponent
  *   /teacher/rooms/:id/results → RoomResultsComponent
  *
- * ADMIN (MainLayout, AuthGuard, RoleGuard['ADMIN']):
- *   /admin/dashboard     → AdminDashboardComponent
+ * ADMIN (AdminLayout, AuthGuard):
+ *   /admin               → AdminDashboardComponent
  *   /admin/subjects      → SubjectManagementComponent
- *   /admin/subjects/:id/chapters → ChapterManagementComponent
+ *   /admin/questions     → (placeholder)
  *   /admin/users         → UserManagementComponent
  *
- * REDIRECTS:
- *   /                    → /auth/login
- *   **                   → 404 page
- *
  * Lazy Loading: Mỗi feature group dùng loadChildren() để lazy load
- *
- * TODO: Implement Routes[]
  */
 import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/pages/home.component';
@@ -54,11 +48,39 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'EduQuiz - Luyện thi & Đánh giá năng lực' },
-  { 
-    path: 'profile', 
-    loadComponent: () => import('./features/user/pages/profile/profile.component').then(m => m.ProfileComponent), 
+  {
+    path: 'profile',
+    loadComponent: () => import('./features/user/pages/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [authGuard],
-    title: 'Thông tin cá nhân - EduQuiz' 
+    title: 'Thông tin cá nhân - EduQuiz'
+  },
+  // Admin area with sidebar layout
+  {
+    path: 'admin',
+    loadComponent: () => import('./layouts/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/admin/pages/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+        title: 'Admin Dashboard - EduQuiz'
+      },
+      {
+        path: 'subjects',
+        loadComponent: () => import('./features/admin/pages/subject-management/subject-management.component').then(m => m.SubjectManagementComponent),
+        title: 'Quản lý môn học - EduQuiz'
+      },
+      {
+        path: 'questions',
+        loadComponent: () => import('./features/admin/pages/chapter-management/chapter-management.component').then(m => m.ChapterManagementComponent),
+        title: 'Quản lý câu hỏi - EduQuiz'
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./features/admin/pages/user-management/user-management.component').then(m => m.UserManagementComponent),
+        title: 'Quản lý người dùng - EduQuiz'
+      }
+    ]
   },
   // Additional routes will go here
   { path: '**', redirectTo: '' }

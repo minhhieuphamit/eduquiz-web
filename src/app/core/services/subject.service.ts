@@ -5,6 +5,18 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse, PageResponse } from '../../models/api-response.model';
 import { SubjectResponse, SubjectRequest } from '../../models/subject.model';
 
+// Maps BE subject error codes to Vietnamese messages
+export function getSubjectErrorMessage(err: any): string {
+  const code: number = err?.error?.code;
+  const messages: Record<number, string> = {
+    4401: 'Không tìm thấy môn học.',
+    4409: 'Tên môn học đã tồn tại.',
+    1400: 'Yêu cầu không hợp lệ. Vui lòng kiểm tra lại thông tin.',
+    1500: 'Lỗi hệ thống. Vui lòng thử lại sau.',
+  };
+  return messages[code] ?? 'Đã xảy ra lỗi. Vui lòng thử lại.';
+}
+
 @Injectable({ providedIn: 'root' })
 export class SubjectService {
   private http = inject(HttpClient);
@@ -39,14 +51,24 @@ export class SubjectService {
     });
   }
 
-  create(request: SubjectRequest): Observable<ApiResponse<SubjectResponse>> {
-    return this.http.post<ApiResponse<SubjectResponse>>(this.apiUrl, request, {
+  create(request: SubjectRequest, image?: File): Observable<ApiResponse<SubjectResponse>> {
+    const formData = new FormData();
+    formData.append('data', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+    if (image) {
+      formData.append('image', image);
+    }
+    return this.http.post<ApiResponse<SubjectResponse>>(this.apiUrl, formData, {
       headers: this.getHeaders(true)
     });
   }
 
-  update(id: string, request: SubjectRequest): Observable<ApiResponse<SubjectResponse>> {
-    return this.http.put<ApiResponse<SubjectResponse>>(`${this.apiUrl}/${id}`, request, {
+  update(id: string, request: SubjectRequest, image?: File): Observable<ApiResponse<SubjectResponse>> {
+    const formData = new FormData();
+    formData.append('data', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+    if (image) {
+      formData.append('image', image);
+    }
+    return this.http.put<ApiResponse<SubjectResponse>>(`${this.apiUrl}/${id}`, formData, {
       headers: this.getHeaders(true)
     });
   }

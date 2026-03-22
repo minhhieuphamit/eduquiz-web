@@ -1,10 +1,14 @@
-<app-header></app-header>
+@if (!isAdminArea()) {
+  <app-header></app-header>
+}
 
-<main class="main-layout">
+<main [class.main-layout]="!isAdminArea()">
   <router-outlet></router-outlet>
 </main>
 
-<app-footer></app-footer>
+@if (!isAdminArea()) {
+  <app-footer></app-footer>
+}
 
 <app-auth-modal></app-auth-modal>
 
