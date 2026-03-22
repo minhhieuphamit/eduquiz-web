@@ -73,7 +73,7 @@
                   <div class="input-icon-wrapper">
                     <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                     <input type="text" class="form-control text-muted border-0 bg-light" placeholder="Vai trò"
-                     [value]="profileData.role === 'ROLE_USER' ? 'Học viên' : profileData.role === 'ROLE_ADMIN' ? 'Quản trị viên' : profileData.role" readonly disabled>
+                     [value]="profileData.role === 'STUDENT' ? 'Học sinh' : profileData.role === 'TEACHER' ? 'Giáo viên' : profileData.role === 'ADMIN' ? 'Quản trị viên' : profileData.role" readonly disabled>
                   </div>
                 </div>
 

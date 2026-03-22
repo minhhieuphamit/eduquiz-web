@@ -19,7 +19,7 @@
     <section class="subject-grid">
       @for (i of [1,2,3,4,5,6,7,8]; track i) {
         <div class="subject-card skeleton-card">
-          <div class="card-icon-wrapper skeleton-icon"></div>
+          <div class="card-image-wrapper skeleton-icon"></div>
           <div class="card-content">
             <div class="skeleton-title"></div>
             <div class="skeleton-desc"></div>
@@ -50,8 +50,12 @@
     <section class="subject-grid">
       @for (subject of subjects(); track subject.id) {
         <a class="subject-card" [attr.aria-label]="'Môn ' + subject.name">
-          <div class="card-icon-wrapper" [style.background-color]="getColor(subject)">
-            <div class="card-icon" [innerHTML]="getIcon(subject)"></div>
+          <div class="card-image-wrapper" [style.background-color]="getColor(subject)">
+            @if (hasImage(subject)) {
+              <img [src]="subject.imageUrl" [alt]="subject.name" class="card-image" loading="lazy" (error)="onImageError(subject.id)">
+            } @else {
+              <div class="card-icon" [innerHTML]="getFallbackIcon(subject)"></div>
+            }
           </div>
           <div class="card-content">
             <h3 class="card-title">{{ subject.name }}</h3>

@@ -17,6 +17,7 @@ export class HomeComponent implements OnInit {
   protected subjects = signal<SubjectResponse[]>([]);
   protected isLoading = signal(true);
   protected hasError = signal(false);
+  protected brokenImages = signal<Set<string>>(new Set());
 
   ngOnInit() {
     this.loadSubjects();
@@ -41,9 +42,20 @@ export class HomeComponent implements OnInit {
     return getSubjectVisual(subject.name).color;
   }
 
-  protected getIcon(subject: SubjectResponse): SafeHtml {
-    const icon = subject.icon ?? getSubjectVisual(subject.name).svg;
-    return this.sanitizer.bypassSecurityTrustHtml(icon);
+  protected getFallbackIcon(subject: SubjectResponse): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(getSubjectVisual(subject.name).svg);
+  }
+
+  protected hasImage(subject: SubjectResponse): boolean {
+    return !!subject.imageUrl && !this.brokenImages().has(subject.id);
+  }
+
+  protected onImageError(subjectId: string) {
+    this.brokenImages.update(set => {
+      const next = new Set(set);
+      next.add(subjectId);
+      return next;
+    });
   }
 
   protected retry() {

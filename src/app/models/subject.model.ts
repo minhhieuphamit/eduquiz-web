@@ -1,8 +1,8 @@
 export interface SubjectResponse {
   id: string;
   name: string;
-  description: string;
-  icon: string | null;
+  description: string | null;
+  imageUrl: string | null;
   defaultDurationMinutes: number | null;
   createdAt: string;
   updatedAt: string;
@@ -11,7 +11,6 @@ export interface SubjectResponse {
 export interface SubjectRequest {
   name: string;
   description?: string;
-  icon?: string;
   defaultDurationMinutes?: number;
 }
 

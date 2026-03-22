@@ -1,0 +1,38 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Xin chào, {{ userName }}!</h1>
+    <p class="dashboard-subtitle">Tổng quan hệ thống quản lý EduQuiz.</p>
+  </div>
+
+  <div class="stats-grid">
+    @for (stat of stats(); track stat.label) {
+      <a [routerLink]="stat.link" class="stat-card">
+        <div class="stat-icon" [style.background-color]="stat.color + '15'" [style.color]="stat.color">
+          <span [innerHTML]="stat.icon"></span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ stat.value }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
+        </div>
+      </a>
+    }
+  </div>
+
+  <div class="quick-actions">
+    <h2 class="section-title">Thao tác nhanh</h2>
+    <div class="actions-grid">
+      <a routerLink="/admin/subjects" class="action-card">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Thêm môn học</span>
+      </a>
+      <a routerLink="/admin/questions" class="action-card">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Thêm câu hỏi</span>
+      </a>
+      <a routerLink="/admin/users" class="action-card">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        <span>Quản lý người dùng</span>
+      </a>
+    </div>
+  </div>
+</div>
