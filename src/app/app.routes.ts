@@ -79,6 +79,24 @@ export const routes: Routes = [
         path: 'users',
         loadComponent: () => import('./features/admin/pages/user-management/user-management.component').then(m => m.UserManagementComponent),
         title: 'Quản lý người dùng - EduQuiz'
+      },
+      {
+        path: 'users/students',
+        loadComponent: () => import('./features/admin/pages/user-management/user-management.component').then(m => m.UserManagementComponent),
+        data: { role: 'STUDENT' },
+        title: 'Quản lý học sinh - EduQuiz'
+      },
+      {
+        path: 'users/teachers',
+        loadComponent: () => import('./features/admin/pages/user-management/user-management.component').then(m => m.UserManagementComponent),
+        data: { role: 'TEACHER' },
+        title: 'Quản lý giáo viên - EduQuiz'
+      },
+      {
+        path: 'users/admins',
+        loadComponent: () => import('./features/admin/pages/user-management/user-management.component').then(m => m.UserManagementComponent),
+        data: { role: 'ADMIN' },
+        title: 'Quản lý quản trị viên - EduQuiz'
       }
     ]
   },

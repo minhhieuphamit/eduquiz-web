@@ -13,10 +13,29 @@
 
     <nav class="sidebar-nav">
       @for (item of navItems; track item.path) {
-        <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: item.path === '/admin' }" class="nav-item">
-          <span class="nav-icon" [innerHTML]="item.icon"></span>
-          <span class="nav-label">{{ item.label }}</span>
-        </a>
+        @if (item.children) {
+          <!-- Expandable menu item -->
+          <div class="nav-group" [class.expanded]="isMenuExpanded(item.label)" [class.parent-active]="isParentActive(item)">
+            <button class="nav-item nav-parent" (click)="toggleMenu(item.label)" [attr.aria-expanded]="isMenuExpanded(item.label)">
+              <span class="nav-icon" [innerHTML]="item.icon"></span>
+              <span class="nav-label">{{ item.label }}</span>
+              <svg class="nav-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="nav-children">
+              @for (child of item.children; track child.path) {
+                <a [routerLink]="child.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-child">
+                  {{ child.label }}
+                </a>
+              }
+            </div>
+          </div>
+        } @else {
+          <!-- Regular nav item -->
+          <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: item.path === '/admin' }" class="nav-item">
+            <span class="nav-icon" [innerHTML]="item.icon"></span>
+            <span class="nav-label">{{ item.label }}</span>
+          </a>
+        }
       }
     </nav>
 
