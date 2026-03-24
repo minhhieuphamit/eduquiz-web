@@ -101,6 +101,77 @@
 .nav-label {
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+}
+
+/* Expandable Nav Group */
+.nav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-parent {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  position: relative;
+}
+
+.nav-chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+  opacity: 0.6;
+}
+
+.nav-group.expanded .nav-chevron {
+  transform: rotate(180deg);
+}
+
+.nav-group.parent-active .nav-parent {
+  color: #fff;
+  background: #334155;
+}
+
+/* Children nav items */
+.nav-children {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding-left: 2.75rem;
+}
+
+.nav-group.expanded .nav-children {
+  max-height: 200px;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.nav-child {
+  display: block;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    color: #e2e8f0;
+    background: #334155;
+  }
+
+  &.active {
+    color: #fff;
+    background: var(--color-primary-blue);
+    font-weight: 500;
+  }
 }
 
 /* Footer */

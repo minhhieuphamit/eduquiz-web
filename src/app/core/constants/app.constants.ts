@@ -1,7 +1,7 @@
+import { environment } from '../../../environments/environment';
+
 export const APP_CONSTANTS = {
-  TOKEN_KEY: 'eduquiz_access_token',
-  REFRESH_TOKEN_KEY: 'eduquiz_refresh_token',
-  USER_KEY: 'eduquiz_user',
+  STORAGE: environment.storageKeys,
   OTP_LENGTH: 6,
   OTP_EXPIRY_MINUTES: 5,
   OTP_MAX_RESEND: 3,

@@ -22,6 +22,7 @@ export interface LeaderboardEntry {
 
 export interface AdminStats {
   totalUsers: number;
+  totalSubjects: number;
   totalStudents: number;
   totalTeachers: number;
   totalQuestions: number;

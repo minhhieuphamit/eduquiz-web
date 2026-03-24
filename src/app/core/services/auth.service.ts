@@ -1,9 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../models/api-response.model';
 import { AuthResponse } from '../../models/auth.model';
+import { ApiService } from './api.service';
 
 export interface UserInfo {
   email: string;
@@ -14,32 +13,20 @@ export interface UserInfo {
   role: string;
 }
 
-// Validates password matching BE's StrongPasswordValidator (same order, same messages)
+/** Validates password matching BE's StrongPasswordValidator (same order, same messages) */
 export function validatePassword(password: string): string | null {
-  if (!password || password.length < 8) {
-    return 'Mật khẩu phải có ít nhất 8 ký tự.';
-  }
-  if (password.length > 50) {
-    return 'Mật khẩu không được vượt quá 50 ký tự.';
-  }
-  if (!/[a-z]/.test(password)) {
-    return 'Mật khẩu phải chứa ít nhất 1 chữ thường.';
-  }
-  if (!/[A-Z]/.test(password)) {
-    return 'Mật khẩu phải chứa ít nhất 1 chữ hoa.';
-  }
-  if (!/\d/.test(password)) {
-    return 'Mật khẩu phải chứa ít nhất 1 chữ số.';
-  }
-  if (!/[@$!%*?&]/.test(password)) {
-    return 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (@$!%*?&).';
-  }
+  if (!password || password.length < 8) return 'Mật khẩu phải có ít nhất 8 ký tự.';
+  if (password.length > 50) return 'Mật khẩu không được vượt quá 50 ký tự.';
+  if (!/[a-z]/.test(password)) return 'Mật khẩu phải chứa ít nhất 1 chữ thường.';
+  if (!/[A-Z]/.test(password)) return 'Mật khẩu phải chứa ít nhất 1 chữ hoa.';
+  if (!/\d/.test(password)) return 'Mật khẩu phải chứa ít nhất 1 chữ số.';
+  if (!/[@$!%*?&]/.test(password)) return 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (@$!%*?&).';
   return null;
 }
 
-// Maps BE error codes to Vietnamese messages
-export function getAuthErrorMessage(err: any): string {
-  const code: number = err?.error?.code;
+/** Maps BE error codes to Vietnamese messages */
+export function getAuthErrorMessage(err: unknown): string {
+  const code: number = (err as any)?.error?.code;
   const messages: Record<number, string> = {
     2401: 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.',
     2402: 'Email hoặc mật khẩu không đúng.',
@@ -66,93 +53,84 @@ export function getAuthErrorMessage(err: any): string {
   return messages[code] ?? 'Đã xảy ra lỗi. Vui lòng thử lại.';
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/auth`;
-  private apiKey = environment.apiKey;
+  private api = inject(ApiService);
+  private http = this.api.http;
+  private apiUrl = `${this.api.baseUrl}/auth`;
 
   public currentUser = signal<UserInfo | null>(null);
 
   constructor() {
-    this.loadUserFromStorage();
-  }
-
-  private loadUserFromStorage() {
-    const userJson = localStorage.getItem('user');
-    if (userJson) {
-      this.currentUser.set(JSON.parse(userJson));
-    }
-  }
-
-  private saveTokens(data: AuthResponse) {
-    localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('refreshToken', data.refreshToken);
-  }
-
-  logout() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    this.currentUser.set(null);
-  }
-
-  private getHeaders(includeAuth = false): HttpHeaders {
-    let headers = new HttpHeaders({
-      'x-api-key': this.apiKey,
-      'x-request-id': crypto.randomUUID()
-    });
-    if (includeAuth) {
-      const token = localStorage.getItem('accessToken');
-      if (token) headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-    return headers;
+    this.currentUser.set(this.api.getUserFromStorage<UserInfo>());
   }
 
   login(credentials: object): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, credentials, { headers: this.getHeaders() })
-      .pipe(tap(res => this.saveTokens(res.data)));
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, credentials, {
+      headers: this.api.createHeaders(false),
+    }).pipe(tap(res => this.api.setTokens(res.data.accessToken, res.data.refreshToken)));
   }
 
   getMe(): Observable<ApiResponse<UserInfo>> {
-    return this.http.get<ApiResponse<UserInfo>>(`${this.apiUrl}/me`, { headers: this.getHeaders(true) })
-      .pipe(tap(res => {
-        this.currentUser.set(res.data);
-        localStorage.setItem('user', JSON.stringify(res.data));
-      }));
+    return this.http.get<ApiResponse<UserInfo>>(`${this.apiUrl}/me`, {
+      headers: this.api.createHeaders(),
+    }).pipe(tap(res => {
+      this.currentUser.set(res.data);
+      this.api.setUserInStorage(res.data);
+    }));
   }
 
   register(userData: object): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/register`, userData, { headers: this.getHeaders() });
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/register`, userData, {
+      headers: this.api.createHeaders(false),
+    });
   }
 
   verifyOtp(data: { email: string; otp: string }): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/verify-otp`, data, { headers: this.getHeaders() });
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/verify-otp`, data, {
+      headers: this.api.createHeaders(false),
+    });
   }
 
   resendOtp(email: string): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/resend-otp?email=${encodeURIComponent(email)}`, {}, { headers: this.getHeaders() });
+    return this.http.post<ApiResponse<void>>(
+      `${this.apiUrl}/resend-otp?email=${encodeURIComponent(email)}`, {},
+      { headers: this.api.createHeaders(false) },
+    );
   }
 
   updateProfile(data: object): Observable<ApiResponse<UserInfo>> {
-    return this.http.patch<ApiResponse<UserInfo>>(`${this.apiUrl}/profile`, data, { headers: this.getHeaders(true) });
+    return this.http.patch<ApiResponse<UserInfo>>(`${this.apiUrl}/profile`, data, {
+      headers: this.api.createHeaders(),
+    });
   }
 
   requestPasswordChange(data: object): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/password-change/request`, data, { headers: this.getHeaders(true) });
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/password-change/request`, data, {
+      headers: this.api.createHeaders(),
+    });
   }
 
   confirmPasswordChange(data: object): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/password-change/confirm`, data, { headers: this.getHeaders(true) });
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/password-change/confirm`, data, {
+      headers: this.api.createHeaders(),
+    });
   }
 
   forgotPassword(email: string): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/forgot-password`, { email }, { headers: this.getHeaders() });
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/forgot-password`, { email }, {
+      headers: this.api.createHeaders(false),
+    });
   }
 
   resetPassword(data: { email: string; otp: string; newPassword: string }): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/reset-password`, data, { headers: this.getHeaders() });
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/reset-password`, data, {
+      headers: this.api.createHeaders(false),
+    });
+  }
+
+  logout() {
+    this.api.clearStorage();
+    this.currentUser.set(null);
   }
 }
