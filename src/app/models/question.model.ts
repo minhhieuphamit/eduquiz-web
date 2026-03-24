@@ -1,27 +1,39 @@
-export interface Question {
-  id: number;
-  chapterId: number;
+export type QuestionType = 'SINGLE_CHOICE' | 'MULTI_CHOICE';
+export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
+
+export interface OptionResponse {
+  id: string;
+  label: string;
+  content: string;
+  isCorrect: boolean;
+  orderIndex: number;
+}
+
+export interface OptionRequest {
+  label: string;
+  content: string;
+  isCorrect: boolean;
+}
+
+export interface QuestionResponse {
+  id: string;
+  chapterId: string;
   chapterName: string;
-  subjectId: number;
+  subjectId: string;
   subjectName: string;
-  content: string;       // Có thể chứa LaTeX: $x^2$
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
-  correctAnswer: 'A' | 'B' | 'C' | 'D';
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
-  explanation: string;   // Có thể chứa LaTeX
+  content: string;
+  type: QuestionType;
+  difficulty: Difficulty;
+  explanation: string | null;
+  options: OptionResponse[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface QuestionRequest {
-  chapterId: number;
   content: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
-  correctAnswer: string;
-  difficulty: string;
+  type: QuestionType;
+  difficulty: Difficulty;
   explanation?: string;
+  options: OptionRequest[];
 }

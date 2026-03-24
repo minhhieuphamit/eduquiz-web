@@ -1,9 +1,3 @@
-import { Component } from '@angular/core';
-
-/** Teacher - question-management page. TODO: Implement */
-@Component({
-  selector: 'app-question-management',
-  standalone: true,
-  template: '<h2>question-management works!</h2>',
-})
-export class QuestionManagementComponent {}
+// Teacher question management reuses the admin chapter-management component
+// They share the same API endpoints (TEACHER has create/update access)
+export { ChapterManagementComponent as QuestionManagementComponent } from '../../../admin/pages/chapter-management/chapter-management.component';

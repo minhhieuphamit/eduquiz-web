@@ -22,6 +22,6 @@ export class App {
 
   protected isAdminArea = computed(() => {
     this.navEnd(); // trigger on navigation
-    return this.router.url.startsWith('/admin');
+    return this.router.url.startsWith('/admin') || this.router.url.startsWith('/teacher');
   });
 }

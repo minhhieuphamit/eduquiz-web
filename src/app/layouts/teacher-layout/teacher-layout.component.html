@@ -1,9 +1,9 @@
-<div class="admin-layout" [class.sidebar-collapsed]="!sidebarOpen()">
+<div class="teacher-layout" [class.sidebar-collapsed]="!sidebarOpen()">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <a routerLink="/admin" class="sidebar-brand">
-        <svg class="brand-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span class="brand-text">Admin Panel</span>
+      <a routerLink="/teacher" class="sidebar-brand">
+        <svg class="brand-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        <span class="brand-text">Giáo viên</span>
       </a>
       <button class="sidebar-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
         @if (sidebarOpen()) {
@@ -16,45 +16,36 @@
 
     <nav class="sidebar-nav">
       <!-- Dashboard -->
-      <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item" [attr.title]="!sidebarOpen() ? 'Dashboard' : null">
+      <a routerLink="/teacher" class="nav-item" [class.active]="isActive('/teacher')" [attr.title]="!sidebarOpen() ? 'Dashboard' : null">
         <span class="nav-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
         </span>
         <span class="nav-label">Dashboard</span>
       </a>
 
-      <!-- Môn học -->
-      <a routerLink="/admin/subjects" routerLinkActive="active" class="nav-item" [attr.title]="!sidebarOpen() ? 'Môn học' : null">
-        <span class="nav-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-        </span>
-        <span class="nav-label">Môn học</span>
-      </a>
-
       <!-- Câu hỏi -->
-      <a routerLink="/admin/questions" routerLinkActive="active" class="nav-item" [attr.title]="!sidebarOpen() ? 'Câu hỏi' : null">
+      <a routerLink="/teacher/questions" class="nav-item" [class.active]="isActive('/teacher/questions')" [attr.title]="!sidebarOpen() ? 'Câu hỏi' : null">
         <span class="nav-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
         </span>
         <span class="nav-label">Câu hỏi</span>
       </a>
 
-      <!-- Người dùng (expandable) -->
-      <div class="nav-group" [class.expanded]="isMenuExpanded('users')" [class.parent-active]="isUsersActive()">
-        <button class="nav-item nav-parent" (click)="toggleMenu('users')" [attr.aria-expanded]="isMenuExpanded('users')" [attr.title]="!sidebarOpen() ? 'Người dùng' : null">
-          <span class="nav-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </span>
-          <span class="nav-label">Người dùng</span>
-          <svg class="nav-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="nav-children">
-          <a routerLink="/admin/users" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-child">Tất cả</a>
-          <a routerLink="/admin/users/students" routerLinkActive="active" class="nav-child">Học sinh</a>
-          <a routerLink="/admin/users/teachers" routerLinkActive="active" class="nav-child">Giáo viên</a>
-          <a routerLink="/admin/users/admins" routerLinkActive="active" class="nav-child">Quản trị viên</a>
-        </div>
-      </div>
+      <!-- Đề thi -->
+      <a routerLink="/teacher/exams" class="nav-item" [class.active]="isActive('/teacher/exams')" [attr.title]="!sidebarOpen() ? 'Đề thi' : null">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 13h4"/><path d="M10 17h4"/><path d="M10 9h1"/></svg>
+        </span>
+        <span class="nav-label">Đề thi</span>
+      </a>
+
+      <!-- Phòng thi -->
+      <a routerLink="/teacher/rooms" class="nav-item" [class.active]="isActive('/teacher/rooms')" [attr.title]="!sidebarOpen() ? 'Phòng thi' : null">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
+        <span class="nav-label">Phòng thi</span>
+      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -67,7 +58,7 @@
     </div>
   </aside>
 
-  <div class="admin-main">
+  <div class="teacher-main">
     <header class="topbar">
       <div class="topbar-spacer"></div>
       <div class="topbar-user" (click)="toggleUserDropdown($event)">
@@ -92,7 +83,7 @@
         }
       </div>
     </header>
-    <main class="admin-content">
+    <main class="teacher-content">
       <router-outlet></router-outlet>
     </main>
   </div>

@@ -3,41 +3,29 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
-  selector: 'app-admin-layout',
+  selector: 'app-teacher-layout',
   imports: [RouterModule],
-  templateUrl: './admin-layout.component.html',
-  styleUrls: ['./admin-layout.component.scss'],
+  templateUrl: './teacher-layout.component.html',
+  styleUrls: ['./teacher-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(document:click)': 'onDocumentClick()'
   }
 })
-export class AdminLayoutComponent {
+export class TeacherLayoutComponent {
   private router = inject(Router);
   protected authService = inject(AuthService);
 
   protected sidebarOpen = signal(true);
-  protected expandedMenu = signal<string | null>(null);
   protected userDropdownOpen = signal(false);
 
   protected toggleSidebar() {
     this.sidebarOpen.update(v => !v);
   }
 
-  protected toggleMenu(label: string) {
-    this.expandedMenu.update(v => v === label ? null : label);
-  }
-
-  protected isMenuExpanded(label: string): boolean {
-    return this.expandedMenu() === label;
-  }
-
   protected isActive(path: string): boolean {
-    return this.router.url === path;
-  }
-
-  protected isUsersActive(): boolean {
-    return this.router.url.startsWith('/admin/users');
+    if (path === '/teacher') return this.router.url === '/teacher';
+    return this.router.url.startsWith(path);
   }
 
   protected toggleUserDropdown(event: Event) {
