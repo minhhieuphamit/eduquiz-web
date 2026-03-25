@@ -1,0 +1,47 @@
+<div class="formula-toolbar">
+  <div class="toolbar-tabs">
+    @for (group of groups; track group.name; let i = $index) {
+      <button class="tab-btn" 
+              [class.active]="activeTab() === i"
+              (click)="setTab(i)"
+              type="button"
+              tabindex="-1">
+        {{ group.name }}
+      </button>
+    }
+  </div>
+
+  <div class="toolbar-content" [class.all-grid]="groups[activeTab()].name === 'Tất cả'">
+    @if (groups[activeTab()].name === 'Tất cả') {
+      @for (item of allItems(); track item.tooltip) {
+        <button class="formula-btn" 
+                (mousedown)="insertFormula(item.tpl, $event)"
+                [title]="item.tooltip"
+                [attr.aria-label]="'Chèn ' + item.tooltip"
+                type="button"
+                tabindex="-1">
+          @if (item.isText) {
+            <span class="text-label">{{ item.label }}</span>
+          } @else {
+            <app-math-content [content]="item.label" [enableKatex]="true" />
+          }
+        </button>
+      }
+    } @else {
+      @for (item of groups[activeTab()].items; track item.tooltip) {
+        <button class="formula-btn" 
+                (mousedown)="insertFormula(item.tpl, $event)"
+                [title]="item.tooltip"
+                [attr.aria-label]="'Chèn ' + item.tooltip"
+                type="button"
+                tabindex="-1">
+          @if (item.isText) {
+            <span class="text-label">{{ item.label }}</span>
+          } @else {
+            <app-math-content [content]="item.label" [enableKatex]="true" />
+          }
+        </button>
+      }
+    }
+  </div>
+</div>

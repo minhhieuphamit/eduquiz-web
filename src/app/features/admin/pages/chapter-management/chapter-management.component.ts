@@ -7,10 +7,13 @@ import { QuestionService, getQuestionErrorMessage } from '../../../../core/servi
 import { SubjectResponse } from '../../../../models/subject.model';
 import { ChapterResponse, ChapterRequest } from '../../../../models/chapter.model';
 import { QuestionResponse, QuestionRequest, QuestionType, Difficulty, OptionRequest } from '../../../../models/question.model';
+import { MathContentComponent } from '../../../../shared/components/math-content/math-content.component';
+import { shouldEnableFormulaTools } from '../../../../shared/utils/subject-katex.util';
+import { QuestionFormComponent } from './components/question-form/question-form.component';
 
 @Component({
   selector: 'app-chapter-management',
-  imports: [FormsModule],
+  imports: [FormsModule, MathContentComponent, QuestionFormComponent],
   templateUrl: './chapter-management.component.html',
   styleUrls: ['./chapter-management.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -54,25 +57,19 @@ export class ChapterManagementComponent implements OnInit {
   protected showQuestionModal = signal(false);
   protected editingQuestion = signal(false);
   protected editingQuestionId = signal<string | null>(null);
-  protected questionForm: QuestionRequest = {
-    content: '',
-    type: 'SINGLE_CHOICE',
-    difficulty: 'MEDIUM',
-    explanation: '',
-    options: [
-      { label: 'A', content: '', isCorrect: true },
-      { label: 'B', content: '', isCorrect: false },
-      { label: 'C', content: '', isCorrect: false },
-      { label: 'D', content: '', isCorrect: false },
-    ]
-  };
-
   // Delete question confirm
   protected showDeleteQuestionConfirm = signal(false);
   protected deletingQuestion = signal<QuestionResponse | null>(null);
 
+  protected questionToEdit = signal<QuestionResponse | null>(null);
+
   protected selectedSubject = computed(() =>
     this.subjects().find(s => s.id === this.selectedSubjectId()) ?? null
+  );
+
+  /** Whether the currently selected subject requires KaTeX rendering. */
+  protected isKatexEnabled = computed(() =>
+    shouldEnableFormulaTools(this.selectedSubject()?.name)
   );
 
   protected selectedChapter = computed(() =>
@@ -240,85 +237,29 @@ export class ChapterManagementComponent implements OnInit {
   protected openCreateQuestion() {
     this.editingQuestion.set(false);
     this.editingQuestionId.set(null);
-    this.questionForm = {
-      content: '',
-      type: 'SINGLE_CHOICE',
-      difficulty: 'MEDIUM',
-      explanation: '',
-      options: [
-        { label: 'A', content: '', isCorrect: true },
-        { label: 'B', content: '', isCorrect: false },
-        { label: 'C', content: '', isCorrect: false },
-        { label: 'D', content: '', isCorrect: false },
-      ]
-    };
+    this.questionToEdit.set(null);
     this.showQuestionModal.set(true);
   }
 
   protected openEditQuestion(q: QuestionResponse) {
     this.editingQuestion.set(true);
     this.editingQuestionId.set(q.id);
-    this.questionForm = {
-      content: q.content,
-      type: q.type,
-      difficulty: q.difficulty,
-      explanation: q.explanation ?? '',
-      options: q.options.map(o => ({ label: o.label, content: o.content, isCorrect: o.isCorrect }))
-    };
+    this.questionToEdit.set(q);
     this.showQuestionModal.set(true);
   }
 
   protected closeQuestionModal() {
     this.showQuestionModal.set(false);
+    this.questionToEdit.set(null);
   }
 
-  protected addOption() {
-    if (this.questionForm.options.length >= 6) return;
-    const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
-    const nextLabel = labels[this.questionForm.options.length] ?? String(this.questionForm.options.length + 1);
-    this.questionForm.options = [...this.questionForm.options, { label: nextLabel, content: '', isCorrect: false }];
-  }
-
-  protected removeOption(index: number) {
-    if (this.questionForm.options.length <= 2) return;
-    this.questionForm.options = this.questionForm.options.filter((_, i) => i !== index);
-    // Re-label
-    const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
-    this.questionForm.options = this.questionForm.options.map((o, i) => ({ ...o, label: labels[i] ?? String(i + 1) }));
-  }
-
-  protected onCorrectChange(index: number) {
-    if (this.questionForm.type === 'SINGLE_CHOICE') {
-      this.questionForm.options = this.questionForm.options.map((o, i) => ({ ...o, isCorrect: i === index }));
-    }
-  }
-
-  protected submitQuestion() {
-    if (!this.questionForm.content?.trim()) {
-      toast.warning('Nội dung câu hỏi không được để trống.');
-      return;
-    }
-    const hasEmpty = this.questionForm.options.some(o => !o.content.trim());
-    if (hasEmpty) {
-      toast.warning('Tất cả đáp án phải có nội dung.');
-      return;
-    }
-    const correctCount = this.questionForm.options.filter(o => o.isCorrect).length;
-    if (this.questionForm.type === 'SINGLE_CHOICE' && correctCount !== 1) {
-      toast.warning('Câu hỏi một đáp án phải có đúng 1 đáp án đúng.');
-      return;
-    }
-    if (this.questionForm.type === 'MULTI_CHOICE' && correctCount < 2) {
-      toast.warning('Câu hỏi nhiều đáp án phải có ít nhất 2 đáp án đúng.');
-      return;
-    }
-
+  handleQuestionSave(request: QuestionRequest) {
     const chapterId = this.selectedChapterId();
     if (!chapterId) return;
 
     this.isSaving.set(true);
     if (this.editingQuestion() && this.editingQuestionId()) {
-      this.questionService.update(this.editingQuestionId()!, this.questionForm).subscribe({
+      this.questionService.update(this.editingQuestionId()!, request).subscribe({
         next: () => {
           this.isSaving.set(false);
           toast.success('Cập nhật câu hỏi thành công!');
@@ -332,7 +273,7 @@ export class ChapterManagementComponent implements OnInit {
         }
       });
     } else {
-      this.questionService.create(chapterId, this.questionForm).subscribe({
+      this.questionService.create(chapterId, request).subscribe({
         next: () => {
           this.isSaving.set(false);
           toast.success('Tạo câu hỏi thành công!');

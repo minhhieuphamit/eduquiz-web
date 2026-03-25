@@ -115,12 +115,12 @@
                   </button>
                 </div>
               </div>
-              <p class="question-content">{{ q.content }}</p>
+              <p class="question-content"><app-math-content [content]="q.content" [enableKatex]="isKatexEnabled()" /></p>
               <div class="option-list">
                 @for (opt of q.options; track opt.id) {
                   <div class="option-item" [class.correct]="opt.isCorrect">
                     <span class="option-label">{{ opt.label }}</span>
-                    <span class="option-content">{{ opt.content }}</span>
+                    <span class="option-content"><app-math-content [content]="opt.content" [enableKatex]="isKatexEnabled()" /></span>
                     @if (opt.isCorrect) {
                       <svg class="option-check" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     }
@@ -129,7 +129,7 @@
               </div>
               @if (q.explanation) {
                 <div class="question-explanation">
-                  <strong>Giải thích:</strong> {{ q.explanation }}
+                  <strong>Giải thích:</strong> <app-math-content [content]="q.explanation" [enableKatex]="isKatexEnabled()" />
                 </div>
               }
             </div>
@@ -191,78 +191,14 @@
 <!-- Question Modal -->
 @if (showQuestionModal()) {
   <div class="modal-backdrop" (click)="closeQuestionModal()">
-    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
-      <button class="modal-close" (click)="closeQuestionModal()" aria-label="Đóng">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-      <h2 class="modal-title">{{ editingQuestion() ? 'Sửa câu hỏi' : 'Thêm câu hỏi mới' }}</h2>
-      <form class="form-vertical" (ngSubmit)="submitQuestion()">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Loại câu hỏi</label>
-            <select class="form-control" [(ngModel)]="questionForm.type" name="type" [disabled]="isSaving()">
-              <option value="SINGLE_CHOICE">Một đáp án</option>
-              <option value="MULTI_CHOICE">Nhiều đáp án</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Độ khó</label>
-            <select class="form-control" [(ngModel)]="questionForm.difficulty" name="difficulty" [disabled]="isSaving()">
-              <option value="EASY">Dễ</option>
-              <option value="MEDIUM">Trung bình</option>
-              <option value="HARD">Khó</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Nội dung câu hỏi <span class="required">*</span></label>
-          <textarea class="form-control" [(ngModel)]="questionForm.content" name="content" rows="3" placeholder="Nhập nội dung câu hỏi..." [disabled]="isSaving()"></textarea>
-        </div>
-
-        <div class="form-group">
-          <div class="options-header">
-            <label class="form-label">Đáp án</label>
-            @if (questionForm.options.length < 6) {
-              <button type="button" class="btn-link" (click)="addOption()">+ Thêm đáp án</button>
-            }
-          </div>
-          @for (opt of questionForm.options; track opt.label; let i = $index) {
-            <div class="option-form-row">
-              <span class="option-form-label">{{ opt.label }}</span>
-              <input type="text" class="form-control option-input" [(ngModel)]="opt.content" [name]="'opt_' + i" placeholder="Nội dung đáp án {{ opt.label }}" [disabled]="isSaving()">
-              @if (questionForm.type === 'SINGLE_CHOICE') {
-                <label class="option-radio">
-                  <input type="radio" name="correctOption" [checked]="opt.isCorrect" (change)="onCorrectChange(i)" [disabled]="isSaving()">
-                  <span class="radio-label">Đúng</span>
-                </label>
-              } @else {
-                <label class="option-checkbox">
-                  <input type="checkbox" [(ngModel)]="opt.isCorrect" [name]="'correct_' + i" [disabled]="isSaving()">
-                  <span class="checkbox-label">Đúng</span>
-                </label>
-              }
-              @if (questionForm.options.length > 2) {
-                <button type="button" class="btn-icon-sm btn-icon-danger" (click)="removeOption(i)" title="Xóa đáp án">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                </button>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Giải thích (tùy chọn)</label>
-          <textarea class="form-control" [(ngModel)]="questionForm.explanation" name="explanation" rows="2" placeholder="Giải thích đáp án..." [disabled]="isSaving()"></textarea>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn-outline" (click)="closeQuestionModal()" [disabled]="isSaving()">Hủy</button>
-          <button type="submit" class="btn-primary" [disabled]="isSaving()">
-            {{ isSaving() ? 'Đang lưu...' : (editingQuestion() ? 'Cập nhật' : 'Tạo mới') }}
-          </button>
-        </div>
-      </form>
+    <div class="modal-container modal-xl" (click)="$event.stopPropagation()">
+      <app-question-form 
+        [questionToEdit]="questionToEdit()"
+        [isKatexEnabled]="isKatexEnabled()"
+        [isSaving]="isSaving()"
+        (save)="handleQuestionSave($event)"
+        (cancel)="closeQuestionModal()">
+      </app-question-form>
     </div>
   </div>
 }

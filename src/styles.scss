@@ -72,11 +72,24 @@
   --transition-normal: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* CSS Reset & Base Styles */
+/* CSS Reset */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/*
+ * KaTeX override: KaTeX relies on content-box sizing and its own
+ * margin/padding for delimiter rendering and vlist stacking.
+ */
+.katex,
+.katex *,
+.katex *::before,
+.katex *::after {
+  box-sizing: content-box;
+  margin: initial;
+  padding: initial;
 }
 
 html, body {
