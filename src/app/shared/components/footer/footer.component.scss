@@ -49,23 +49,22 @@
 }
 
 .logo-text {
-  font-family: var(--font-family-heading);
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: var(--color-primary-blue);
   letter-spacing: 0;
 }
 
 .logo-domain {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
   font-weight: 500;
 }
 
 .footer-description {
   color: var(--color-text-muted);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
 }
 
 /* Links */
@@ -80,14 +79,14 @@
   gap: 0.75rem;
   
   h4 {
-    font-size: 1.05rem;
+    font-size: var(--text-base);
     color: var(--color-text-main);
     margin-bottom: 0.5rem;
   }
   
   a {
     color: var(--color-text-muted);
-    font-size: 0.95rem;
+    font-size: var(--text-base);
     
     &:hover {
       color: var(--color-primary-orange);
@@ -104,7 +103,7 @@
   
   p {
     color: var(--color-text-light);
-    font-size: 0.9rem;
+    font-size: var(--text-sm);
     margin: 0;
   }
 }

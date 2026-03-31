@@ -25,17 +25,17 @@
 }
 
 .confirm-text {
-  font-size: 1.05rem;
+  font-size: var(--text-base);
   color: var(--color-text-main);
   margin: 0 0 0.5rem 0;
-  line-height: 1.5;
+  line-height: var(--leading-normal);
 }
 
 .confirm-sub {
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
   margin: 0;
-  line-height: 1.5;
+  line-height: var(--leading-normal);
 }
 
 .form-actions {
@@ -54,10 +54,9 @@
   color: var(--color-text-main);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
-  font-family: inherit;
   transition: all 0.2s;
 
   &:hover:not(:disabled) { background: #f8fafc; }
@@ -71,10 +70,9 @@
   padding: 0.5rem 1.25rem;
   border: none;
   border-radius: var(--radius-lg);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
-  font-family: inherit;
   transition: all 0.2s;
   color: #fff;
 

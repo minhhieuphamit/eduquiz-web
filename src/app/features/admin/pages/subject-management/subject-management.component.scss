@@ -14,14 +14,14 @@
 }
 
 .page-title {
-  font-size: 1.75rem;
+  font-size: var(--text-3xl);
   color: var(--color-text-main);
   margin-bottom: 0.25rem;
 }
 
 .page-subtitle {
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   margin: 0;
 }
 
@@ -42,13 +42,13 @@
     padding: 0.875rem 1rem;
     text-align: left;
     border-bottom: 1px solid var(--color-border);
-    line-height: 1.5;
+    line-height: var(--leading-normal);
   }
 
   th {
     background: #f8fafc;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -149,7 +149,7 @@
   color: #fff;
   border: none;
   border-radius: var(--radius-lg);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
   transition: var(--transition-normal);
@@ -171,7 +171,7 @@
   color: var(--color-text-main);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
   transition: var(--transition-normal);
@@ -188,7 +188,7 @@
   color: #fff;
   border: none;
   border-radius: var(--radius-lg);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
   transition: var(--transition-normal);
@@ -239,7 +239,7 @@
 
   p {
     margin-bottom: 1.5rem;
-    font-size: 1.05rem;
+    font-size: var(--text-base);
   }
 }
 
@@ -290,7 +290,7 @@
 }
 
 .modal-title {
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
   color: var(--color-text-main);
   margin-bottom: 1.5rem;
   padding-right: 2rem;
@@ -310,7 +310,7 @@
 }
 
 .form-label {
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-text-main);
 }
@@ -323,12 +323,11 @@
   padding: 0.625rem 0.875rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
   color: var(--color-text-main);
   background: var(--color-bg-surface);
   transition: var(--transition-normal);
-  font-family: inherit;
   resize: vertical;
 
   &::placeholder {
@@ -348,7 +347,7 @@
 }
 
 .form-hint {
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   color: var(--color-text-light);
   margin: 0;
 }
@@ -385,7 +384,7 @@
   color: var(--color-text-light);
 
   span {
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
   }
 }
 
@@ -409,16 +408,16 @@
   text-align: center;
 
   h3 {
-    font-size: 1.15rem;
+    font-size: var(--text-lg);
     color: var(--color-text-main);
     margin-bottom: 0.75rem;
   }
 
   p {
     color: var(--color-text-muted);
-    font-size: 0.95rem;
+    font-size: var(--text-base);
     margin-bottom: 1.5rem;
-    line-height: 1.5;
+    line-height: var(--leading-normal);
   }
 
   .form-actions {
