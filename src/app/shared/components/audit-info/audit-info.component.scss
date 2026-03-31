@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   color: #6b7280;
   margin-top: 1rem;
   padding-top: 0.75rem;
@@ -29,7 +29,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     font-weight: 600;
     color: #374151;
     margin-bottom: 1rem;
@@ -47,13 +47,13 @@
   }
 
   .audit-field-label {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
     color: #6b7280;
     margin-bottom: 0.25rem;
   }
 
   .audit-field-value {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     font-weight: 500;
     color: #111827;
   }

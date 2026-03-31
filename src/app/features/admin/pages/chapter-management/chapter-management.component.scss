@@ -8,14 +8,14 @@
 }
 
 .page-title {
-  font-size: 1.75rem;
+  font-size: var(--text-3xl);
   color: var(--color-text-main);
   margin-bottom: 0.25rem;
 }
 
 .page-subtitle {
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   margin: 0;
 }
 
@@ -34,7 +34,7 @@
 }
 
 .selector-label {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-muted);
   text-transform: uppercase;
@@ -45,8 +45,7 @@
   padding: 0.5rem 2rem 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 0.95rem;
-  font-family: inherit;
+  font-size: var(--text-base);
   color: var(--color-text-main);
   background: var(--color-bg-surface);
   cursor: pointer;
@@ -65,7 +64,7 @@
 
 .selector-loading {
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   padding: 0.5rem 0;
 }
 
@@ -92,7 +91,7 @@
 }
 
 .panel-title {
-  font-size: 1.05rem;
+  font-size: var(--text-base);
   color: var(--color-text-main);
   font-weight: 600;
 }
@@ -100,7 +99,7 @@
 .panel-title-sub {
   font-weight: 400;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .panel-loading {
@@ -112,7 +111,7 @@
   text-align: center;
   padding: 2.5rem 1rem;
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   background: var(--color-bg-surface);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-lg);
@@ -169,7 +168,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: var(--color-text-muted);
   flex-shrink: 0;
@@ -189,7 +188,7 @@
 
 .chapter-row-name {
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   color: var(--color-text-main);
   white-space: nowrap;
   overflow: hidden;
@@ -197,7 +196,7 @@
 }
 
 .chapter-row-count {
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   color: var(--color-text-muted);
 }
 
@@ -232,10 +231,9 @@
   padding: 0.375rem 0.75rem;
   border: none;
   border-radius: var(--radius-md);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
-  font-family: inherit;
   transition: all 0.2s;
   white-space: nowrap;
 
@@ -281,9 +279,8 @@
   background: none;
   border: none;
   color: var(--color-primary-blue);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   cursor: pointer;
-  font-family: inherit;
   font-weight: 500;
   padding: 0;
 
@@ -306,7 +303,7 @@
 }
 
 .form-label {
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-text-main);
 }
@@ -319,11 +316,10 @@
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
   color: var(--color-text-main);
   background: var(--color-bg-surface);
-  font-family: inherit;
   resize: vertical;
 
   &::placeholder { color: var(--color-text-light); }
@@ -357,10 +353,9 @@
   color: var(--color-text-main);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
-  font-family: inherit;
   transition: all 0.2s;
 
   &:hover { background: #f8fafc; }
@@ -372,10 +367,9 @@
   color: #fff;
   border: none;
   border-radius: var(--radius-lg);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
-  font-family: inherit;
   transition: all 0.2s;
 
   &:hover:not(:disabled) { background: var(--color-primary-blue-hover); }
@@ -388,10 +382,9 @@
   color: #fff;
   border: none;
   border-radius: var(--radius-lg);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
-  font-family: inherit;
   transition: all 0.2s;
 
   &:hover { background: #e53e3e; }
