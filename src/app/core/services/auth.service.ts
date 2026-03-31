@@ -62,7 +62,10 @@ export class AuthService {
   public currentUser = signal<UserInfo | null>(null);
 
   constructor() {
-    this.currentUser.set(this.api.getUserFromStorage<UserInfo>());
+    const cached = this.api.getUserFromStorage<UserInfo>();
+    if (cached) {
+      this.currentUser.set(cached);
+    }
   }
 
   login(credentials: object): Observable<ApiResponse<AuthResponse>> {

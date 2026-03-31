@@ -22,6 +22,7 @@ export class QuestionService {
   private api = inject(ApiService);
   private http = this.api.http;
 
+  /** Public — list questions by chapter (no auth context) */
   getByChapter(
     chapterId: string,
     page = 0,
@@ -35,6 +36,34 @@ export class QuestionService {
     return this.http.get<ApiResponse<PageResponse<QuestionResponse>>>(
       `${this.api.baseUrl}/chapters/${chapterId}/questions`,
       { headers: this.api.createHeaders(false), params },
+    );
+  }
+
+  /**
+   * Authenticated — role-based question list.
+   * ADMIN sees all, TEACHER sees own + shared.
+   * BE endpoint: GET /api/v1/questions/my
+   */
+  getMyQuestions(opts: {
+    chapterId?: string;
+    subjectId?: string;
+    difficulty?: Difficulty;
+    type?: QuestionType;
+    keyword?: string;
+    page?: number;
+    size?: number;
+  } = {}): Observable<ApiResponse<PageResponse<QuestionResponse>>> {
+    let params = new HttpParams()
+      .set('page', opts.page ?? 0)
+      .set('size', opts.size ?? 20);
+    if (opts.chapterId) params = params.set('chapterId', opts.chapterId);
+    if (opts.subjectId) params = params.set('subjectId', opts.subjectId);
+    if (opts.difficulty) params = params.set('difficulty', opts.difficulty);
+    if (opts.type) params = params.set('type', opts.type);
+    if (opts.keyword) params = params.set('keyword', opts.keyword);
+    return this.http.get<ApiResponse<PageResponse<QuestionResponse>>>(
+      `${this.api.baseUrl}/questions/my`,
+      { headers: this.api.createHeaders(), params },
     );
   }
 
@@ -64,6 +93,15 @@ export class QuestionService {
   delete(questionId: string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(
       `${this.api.baseUrl}/questions/${questionId}`,
+      { headers: this.api.createHeaders() },
+    );
+  }
+
+  /** Toggle isShared flag — PUT /questions/{id}/share */
+  shareQuestion(questionId: string): Observable<ApiResponse<QuestionResponse>> {
+    return this.http.put<ApiResponse<QuestionResponse>>(
+      `${this.api.baseUrl}/questions/${questionId}/share`,
+      {},
       { headers: this.api.createHeaders() },
     );
   }

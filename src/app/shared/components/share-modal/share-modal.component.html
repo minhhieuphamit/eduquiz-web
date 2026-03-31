@@ -1,0 +1,55 @@
+@if (isOpen() && question(); as q) {
+  <div class="modal-backdrop" (click)="handleClose()">
+    <div class="modal-container modal-sm share-modal" role="dialog" aria-labelledby="share-modal-title"
+         (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 id="share-modal-title" class="modal-title m-0">
+          {{ q.isShared ? 'Hủy chia sẻ' : 'Chia sẻ câu hỏi' }}
+        </h2>
+        <button class="modal-close" (click)="handleClose()" [disabled]="isProcessing()" aria-label="Đóng">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="confirm-content">
+          @if (q.isShared) {
+            <div class="confirm-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+            </div>
+            <p class="confirm-text">Bạn có muốn <strong>hủy chia sẻ</strong> câu hỏi này?</p>
+            <p class="confirm-sub">Tất cả giáo viên khác sẽ không còn thấy câu hỏi này.</p>
+          } @else {
+            <div class="confirm-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                stroke="#2196f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+            </div>
+            <p class="confirm-text">Chia sẻ câu hỏi này cho <strong>tất cả giáo viên</strong>?</p>
+            <p class="confirm-sub">Giáo viên khác sẽ thấy câu hỏi này nhưng không thể chỉnh sửa hay xóa.</p>
+          }
+        </div>
+
+        <div class="form-actions center">
+          <button class="btn-outline" (click)="handleClose()" [disabled]="isProcessing()">Hủy</button>
+          <button class="btn-confirm" [class.btn-danger-soft]="q.isShared" [class.btn-primary]="!q.isShared"
+                  (click)="toggleShare()" [disabled]="isProcessing()">
+            @if (isProcessing()) {
+              <span class="spinner-sm"></span>
+            }
+            {{ q.isShared ? 'Hủy chia sẻ' : 'Chia sẻ' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

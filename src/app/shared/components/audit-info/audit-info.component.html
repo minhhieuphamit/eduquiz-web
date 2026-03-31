@@ -1,0 +1,35 @@
+@if (compact()) {
+  <div class="audit-compact">
+    <span>Tạo bởi: <strong>{{ createdByName() || 'Không rõ' }}</strong></span>
+    <span class="separator" aria-hidden="true">·</span>
+    <span>Cập nhật: <strong>{{ updatedAt() | date:'dd/MM/yyyy' }}</strong></span>
+  </div>
+} @else {
+  <div class="audit-full" role="region" aria-label="Thông tin hệ thống">
+    <h4 class="audit-full-title">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+      Thông tin hệ thống
+    </h4>
+    <div class="audit-full-grid">
+      <div>
+        <div class="audit-field-label">Người tạo</div>
+        <div class="audit-field-value">{{ createdByName() || 'Không rõ' }}</div>
+      </div>
+      <div>
+        <div class="audit-field-label">Ngày tạo</div>
+        <div class="audit-field-value">{{ createdAt() | date:'dd/MM/yyyy HH:mm' }}</div>
+      </div>
+      <div>
+        <div class="audit-field-label">Cập nhật bởi</div>
+        <div class="audit-field-value">{{ updatedByName() || 'Không rõ' }}</div>
+      </div>
+      <div>
+        <div class="audit-field-label">Ngày cập nhật</div>
+        <div class="audit-field-value">{{ updatedAt() | date:'dd/MM/yyyy HH:mm' }}</div>
+      </div>
+    </div>
+  </div>
+}

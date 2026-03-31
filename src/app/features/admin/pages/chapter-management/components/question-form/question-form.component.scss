@@ -6,27 +6,21 @@
 }
 
 .qf-container {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  display: flex;
+  flex-direction: column;
   background: white;
+  width: 100%;
+  height: 100%;
 }
 
 /* Header */
 .qf-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 70px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  height: 70px; /* Fixed height */
+  height: 70px;
   border-bottom: 1px solid var(--color-border);
   background: white;
   z-index: 20;
@@ -46,11 +40,7 @@
 
 /* Tabs Navigation */
 .qf-tabs {
-  position: absolute;
-  top: 70px;
-  left: 0;
-  right: 0;
-  height: 55px;
+  flex-shrink: 0;
   display: flex;
   padding: 0 1.5rem;
   background: #f8fafc;
@@ -93,13 +83,11 @@
 
 /* Content Area */
 .qf-content {
-  position: absolute;
-  top: 125px; /* 70 (header) + 55 (tabs) */
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow-y: auto; /* KÍCH HOẠT THANH CUỘN Ở ĐÂY */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   background: #f1f5f9;
+  position: relative;
   
   /* Scrollbar styling */
   scrollbar-width: thin;
@@ -113,8 +101,11 @@
 }
 
 .qf-tab-pane {
-  display: block;
   min-height: min-content;
+
+  &[hidden] {
+    display: none;
+  }
 }
 
 /* Editor Pane */
@@ -424,6 +415,7 @@
 
   @media (min-width: 768px) {
     grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 1fr;
   }
 }
 
@@ -507,4 +499,28 @@
   padding: 4rem 0;
   color: #94a3b8;
   font-style: italic;
+}
+
+/* Read-only UI */
+.readonly-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: #fff8f1;
+  border-bottom: 1px solid #fed7aa;
+  color: #c2410c;
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.audit-block-wrapper {
+  padding: 1.5rem 1.5rem 0 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
 }

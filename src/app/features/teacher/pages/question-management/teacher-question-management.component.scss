@@ -201,18 +201,6 @@
   color: var(--color-text-muted);
 }
 
-.chapter-row-actions {
-  display: flex;
-  gap: 0.25rem;
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity 0.2s;
-
-  .chapter-row:hover & {
-    opacity: 1;
-  }
-}
-
 /* Questions Panel */
 .questions-panel {
   min-width: 0;
@@ -251,32 +239,6 @@
   &:hover:not(:disabled) { background: var(--color-primary-blue-hover); }
 }
 
-.btn-icon-sm {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-surface);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  transition: all 0.2s;
-
-  &:hover {
-    border-color: var(--color-primary-blue);
-    color: var(--color-primary-blue);
-    background: #e8f0fe;
-  }
-}
-
-.btn-icon-danger:hover {
-  border-color: var(--color-error) !important;
-  color: var(--color-error) !important;
-  background: #fef2f2 !important;
-}
-
 .btn-link {
   background: none;
   border: none;
@@ -292,54 +254,7 @@
   }
 }
 
-/* Form */
-.form-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.form-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--color-text-main);
-}
-
-.required {
-  color: var(--color-error);
-}
-
-.form-control {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: var(--color-text-main);
-  background: var(--color-bg-surface);
-  font-family: inherit;
-  resize: vertical;
-
-  &::placeholder { color: var(--color-text-light); }
-
-  &:focus {
-    outline: none;
-    border-color: var(--color-primary-blue);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
-  }
-
-  &:disabled {
-    background: #f8fafc;
-    cursor: not-allowed;
-  }
-}
-
+/* Form (chapter modal in admin uses these; teacher reuses for confirm dialogs) */
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -366,22 +281,6 @@
   &:hover { background: #f8fafc; }
 }
 
-.btn-primary {
-  padding: 0.5rem 1.25rem;
-  background: var(--color-primary-blue);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-lg);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s;
-
-  &:hover:not(:disabled) { background: var(--color-primary-blue-hover); }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
-}
-
 .btn-danger {
   padding: 0.5rem 1.25rem;
   background: var(--color-error);
@@ -396,4 +295,39 @@
 
   &:hover { background: #e53e3e; }
   &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+/* Filter Tabs */
+.filter-tabs {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tab-btn {
+  padding: 0.75rem 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+
+  &:hover {
+    color: var(--color-text-main);
+  }
+
+  &.active {
+    color: var(--color-primary-blue);
+    border-bottom-color: var(--color-primary-blue);
+  }
+}
+
+.wrap-header {
+  flex-wrap: wrap;
+  gap: 1rem;
 }

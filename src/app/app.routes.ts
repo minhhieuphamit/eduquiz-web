@@ -116,8 +116,8 @@ export const routes: Routes = [
       },
       {
         path: 'questions',
-        loadComponent: () => import('./features/admin/pages/chapter-management/chapter-management.component').then(m => m.ChapterManagementComponent),
-        title: 'Quản lý câu hỏi - EduQuiz'
+        loadComponent: () => import('./features/teacher/pages/question-management/teacher-question-management.component').then(m => m.TeacherQuestionManagementComponent),
+        title: 'Ngân hàng câu hỏi - EduQuiz'
       },
       {
         path: 'exams',

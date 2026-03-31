@@ -1,12 +1,22 @@
 <div class="qf-container">
   <!-- Modal Header (Static) -->
   <div class="qf-header">
-    <h2 class="qf-title">{{ questionToEdit() ? 'Sửa câu hỏi' : 'Thêm câu hỏi mới' }}</h2>
+    <h2 class="qf-title">
+      @if (isReadOnly()) {
+        Chi tiết câu hỏi
+      } @else {
+        {{ questionToEdit() ? 'Sửa câu hỏi' : 'Thêm câu hỏi mới' }}
+      }
+    </h2>
     <div class="qf-actions">
-      <button type="button" class="btn-outline" (click)="onCancel()" [disabled]="isSaving()">Hủy</button>
-      <button type="button" class="btn-primary" (click)="onSubmit()" [disabled]="isSaving()">
-        {{ isSaving() ? 'Đang lưu...' : (questionToEdit() ? 'Cập nhật' : 'Tạo mới') }}
-      </button>
+      @if (isReadOnly()) {
+        <button type="button" class="btn-primary" (click)="onCancel()">Đóng</button>
+      } @else {
+        <button type="button" class="btn-outline" (click)="onCancel()" [disabled]="isSaving()">Hủy</button>
+        <button type="button" class="btn-primary" (click)="onSubmit()" [disabled]="isSaving()">
+          {{ isSaving() ? 'Đang lưu...' : (questionToEdit() ? 'Cập nhật' : 'Tạo mới') }}
+        </button>
+      }
     </div>
   </div>
 
@@ -29,9 +39,26 @@
   </div>
 
   <div class="qf-content">
+    @if (isReadOnly()) {
+      <div class="readonly-banner">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Câu hỏi này được chia sẻ cho bạn. Chỉ người tạo hoặc admin mới có thể chỉnh sửa.</span>
+      </div>
+    }
+
+    @if (questionToEdit()) {
+      <div class="audit-block-wrapper">
+        <app-audit-info
+          [createdByName]="questionToEdit()!.createdByName"
+          [updatedByName]="questionToEdit()!.updatedByName"
+          [createdAt]="questionToEdit()!.createdAt"
+          [updatedAt]="questionToEdit()!.updatedAt"
+          [compact]="false" />
+      </div>
+    }
+
     <!-- TAB 1: EDITOR -->
-    @if (activeTab() === 'editor') {
-      <div class="qf-tab-pane qf-editor-pane">
+    <div class="qf-tab-pane qf-editor-pane" [hidden]="activeTab() !== 'editor'">
         <!-- Sticky Toolbar (Only for KaTeX Subjects) -->
         @if (isKatexEnabled()) {
           <div class="qf-toolbar-wrapper">
@@ -141,12 +168,10 @@
           </form>
         </div>
       </div>
-    }
 
     <!-- TAB 2: PREVIEW -->
-    @if (activeTab() === 'preview') {
-      <div class="qf-tab-pane qf-preview-pane">
-        <div class="qf-preview-container">
+    <div class="qf-tab-pane qf-preview-pane" [hidden]="activeTab() !== 'preview'">
+      <div class="qf-preview-container">
           <div class="preview-card-full">
             <div class="preview-badge">Xem trước hiển thị</div>
 
@@ -192,6 +217,5 @@
           </div>
         </div>
       </div>
-    }
   </div>
 </div>

@@ -1,14 +1,15 @@
-import { Component, ChangeDetectionStrategy, input, output, inject, OnInit, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, inject, OnInit, signal, computed } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { QuestionRequest, QuestionResponse, QuestionType, Difficulty } from '../../../../../../models/question.model';
 import { MathContentComponent } from '../../../../../../shared/components/math-content/math-content.component';
 import { FormulaToolbarComponent } from '../../../../../../shared/components/formula-toolbar/formula-toolbar.component';
 import { ActiveEditorDirective } from '../../../../../../shared/directives/active-editor/active-editor.directive';
+import { AuditInfoComponent } from '../../../../../../shared/components/audit-info/audit-info.component';
 import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-question-form',
-  imports: [ReactiveFormsModule, MathContentComponent, FormulaToolbarComponent, ActiveEditorDirective],
+  imports: [ReactiveFormsModule, MathContentComponent, FormulaToolbarComponent, ActiveEditorDirective, AuditInfoComponent],
   templateUrl: './question-form.component.html',
   styleUrls: ['./question-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -20,6 +21,10 @@ export class QuestionFormComponent implements OnInit {
   questionToEdit = input<QuestionResponse | null>(null);
   isKatexEnabled = input<boolean>(false);
   isSaving = input<boolean>(false);
+  readOnly = input<boolean>(false);
+
+  // Computed
+  isReadOnly = computed(() => this.readOnly());
 
   // Outputs
   save = output<QuestionRequest>();
@@ -35,6 +40,10 @@ export class QuestionFormComponent implements OnInit {
     this.initForm();
     if (this.questionToEdit()) {
       this.patchForm(this.questionToEdit()!);
+    }
+    if (this.isReadOnly()) {
+      this.form.disable();
+      this.activeTab.set('preview');
     }
   }
 
@@ -80,8 +89,8 @@ export class QuestionFormComponent implements OnInit {
   private createOptionGroup(label: string, isCorrect: boolean = false): FormGroup {
     return this.fb.group({
       label: [label, Validators.required],
-      content: ['', Validators.required],
-      isCorrect: [isCorrect]
+      content: [{ value: '', disabled: this.isReadOnly() }, Validators.required],
+      isCorrect: [{ value: isCorrect, disabled: this.isReadOnly() }]
     });
   }
 
@@ -103,14 +112,14 @@ export class QuestionFormComponent implements OnInit {
   }
 
   addOption() {
-    if (this.optionsArray.length >= 6) return;
+    if (this.isReadOnly() || this.optionsArray.length >= 6) return;
     const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
     const nextLabel = labels[this.optionsArray.length] ?? String(this.optionsArray.length + 1);
     this.optionsArray.push(this.createOptionGroup(nextLabel, false));
   }
 
   removeOption(index: number) {
-    if (this.optionsArray.length <= 2) return;
+    if (this.isReadOnly() || this.optionsArray.length <= 2) return;
     this.optionsArray.removeAt(index);
     // Relabel
     const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -120,6 +129,7 @@ export class QuestionFormComponent implements OnInit {
   }
 
   onCorrectChange(index: number) {
+    if (this.isReadOnly()) return;
     if (this.questionType === 'SINGLE_CHOICE') {
       this.optionsArray.controls.forEach((ctrl, i) => {
         ctrl.get('isCorrect')?.setValue(i === index, { emitEvent: false });

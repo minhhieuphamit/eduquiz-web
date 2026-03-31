@@ -20,6 +20,7 @@
         </select>
       }
     </div>
+
   </div>
 
   <!-- Two-column layout: chapters + questions -->
@@ -99,40 +100,15 @@
       @if (selectedChapterId() && !questionsLoading() && questions().length > 0) {
         <div class="question-list">
           @for (q of questions(); track q.id; let idx = $index) {
-            <div class="question-card">
-              <div class="question-header">
-                <span class="question-number">Câu {{ questionPage() * 20 + idx + 1 }}</span>
-                <div class="question-badges">
-                  <span class="badge" [class]="getDifficultyClass(q.difficulty)">{{ getDifficultyLabel(q.difficulty) }}</span>
-                  <span class="badge badge-type">{{ getTypeLabel(q.type) }}</span>
-                </div>
-                <div class="question-actions">
-                  <button class="btn-icon-sm" title="Sửa" (click)="openEditQuestion(q)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                  </button>
-                  <button class="btn-icon-sm btn-icon-danger" title="Xóa" (click)="confirmDeleteQuestion(q)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                  </button>
-                </div>
-              </div>
-              <p class="question-content"><app-math-content [content]="q.content" [enableKatex]="isKatexEnabled()" /></p>
-              <div class="option-list">
-                @for (opt of q.options; track opt.id) {
-                  <div class="option-item" [class.correct]="opt.isCorrect">
-                    <span class="option-label">{{ opt.label }}</span>
-                    <span class="option-content"><app-math-content [content]="opt.content" [enableKatex]="isKatexEnabled()" /></span>
-                    @if (opt.isCorrect) {
-                      <svg class="option-check" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    }
-                  </div>
-                }
-              </div>
-              @if (q.explanation) {
-                <div class="question-explanation">
-                  <strong>Giải thích:</strong> <app-math-content [content]="q.explanation" [enableKatex]="isKatexEnabled()" />
-                </div>
-              }
-            </div>
+            <app-question-card
+              [question]="q"
+              [index]="questionPage() * 20 + idx + 1"
+              [permissions]="getPermissions(q)"
+              [enableKatex]="isKatexEnabled()"
+              (edit)="openEditQuestion($event)"
+              (delete)="confirmDeleteQuestion($event)"
+              (share)="openShareModal($event)">
+            </app-question-card>
           }
         </div>
 
@@ -223,6 +199,14 @@
     </div>
   </div>
 }
+
+<!-- Share Modal -->
+<app-share-modal
+  [isOpen]="showShareModal()"
+  [question]="sharingQuestion()"
+  (closeModal)="closeShareModal()"
+  (shareChanged)="onShareChanged()">
+</app-share-modal>
 
 <!-- Delete Question Confirm -->
 @if (showDeleteQuestionConfirm()) {

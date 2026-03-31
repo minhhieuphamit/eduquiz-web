@@ -26,9 +26,22 @@ export interface QuestionResponse {
   difficulty: Difficulty;
   explanation: string | null;
   options: OptionResponse[];
+
+  // Audit fields (flat — matches BE DTO)
+  createdById: string;
+  createdByName: string;
+  updatedById: string;
+  updatedByName: string;
+
+  // Context fields (populated by BE based on current user)
+  isOwner: boolean | null;
+  isShared: boolean | null;
+
   createdAt: string;
   updatedAt: string;
 }
+
+export type QuestionOwnership = 'all' | 'mine' | 'shared';
 
 export interface QuestionRequest {
   content: string;
@@ -37,3 +50,4 @@ export interface QuestionRequest {
   explanation?: string;
   options: OptionRequest[];
 }
+

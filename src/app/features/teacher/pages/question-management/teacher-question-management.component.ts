@@ -2,26 +2,26 @@ import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed } 
 import { FormsModule } from '@angular/forms';
 import { toast } from 'ngx-sonner';
 import { SubjectService } from '../../../../core/services/subject.service';
-import { ChapterService, getChapterErrorMessage } from '../../../../core/services/chapter.service';
+import { ChapterService } from '../../../../core/services/chapter.service';
 import { QuestionService, getQuestionErrorMessage } from '../../../../core/services/question.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { SubjectResponse } from '../../../../models/subject.model';
-import { ChapterResponse, ChapterRequest } from '../../../../models/chapter.model';
-import { QuestionResponse, QuestionRequest, QuestionType, Difficulty } from '../../../../models/question.model';
+import { ChapterResponse } from '../../../../models/chapter.model';
+import { QuestionResponse, QuestionRequest, QuestionOwnership } from '../../../../models/question.model';
 import { shouldEnableFormulaTools } from '../../../../shared/utils/subject-katex.util';
-import { QuestionFormComponent } from './components/question-form/question-form.component';
+import { QuestionFormComponent } from '../../../admin/pages/chapter-management/components/question-form/question-form.component';
 import { QuestionCardComponent } from '../../../../shared/components/question-card/question-card.component';
 import { ShareModalComponent } from '../../../../shared/components/share-modal/share-modal.component';
-import { AuthService } from '../../../../core/services/auth.service';
 import { QuestionPermissions, getQuestionPermissions } from '../../../../core/utils/question-permission.util';
 
 @Component({
-  selector: 'app-chapter-management',
+  selector: 'app-teacher-question-management',
   imports: [FormsModule, QuestionFormComponent, QuestionCardComponent, ShareModalComponent],
-  templateUrl: './chapter-management.component.html',
-  styleUrl: './chapter-management.component.scss',
+  templateUrl: './teacher-question-management.component.html',
+  styleUrl: './teacher-question-management.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChapterManagementComponent implements OnInit {
+export class TeacherQuestionManagementComponent implements OnInit {
   private subjectService = inject(SubjectService);
   private chapterService = inject(ChapterService);
   private questionService = inject(QuestionService);
@@ -32,9 +32,10 @@ export class ChapterManagementComponent implements OnInit {
   protected chapters = signal<ChapterResponse[]>([]);
   protected questions = signal<QuestionResponse[]>([]);
 
-  // Selection
+  // Selection & Filter
   protected selectedSubjectId = signal<string>('');
   protected selectedChapterId = signal<string>('');
+  protected activeFilter = signal<QuestionOwnership>('all');
 
   // Loading
   protected subjectsLoading = signal(true);
@@ -47,29 +48,21 @@ export class ChapterManagementComponent implements OnInit {
   protected questionTotalPages = signal(0);
   protected questionTotal = signal(0);
 
-  // Chapter modal
-  protected showChapterModal = signal(false);
-  protected editingChapter = signal(false);
-  protected editingChapterId = signal<string | null>(null);
-  protected chapterForm: ChapterRequest = { name: '', description: '' };
-
-  // Delete chapter confirm
-  protected showDeleteChapterConfirm = signal(false);
-  protected deletingChapter = signal<ChapterResponse | null>(null);
-
-  // Question modal
+  // Modals
   protected showQuestionModal = signal(false);
   protected editingQuestion = signal(false);
   protected editingQuestionId = signal<string | null>(null);
   protected questionToEdit = signal<QuestionResponse | null>(null);
+  protected questionFormReadOnly = signal(false);
 
-  // Delete question confirm
   protected showDeleteQuestionConfirm = signal(false);
   protected deletingQuestion = signal<QuestionResponse | null>(null);
 
-  // Share modal
   protected showShareModal = signal(false);
   protected sharingQuestion = signal<QuestionResponse | null>(null);
+
+  // Computed
+  protected currentUser = computed(() => this.authService.currentUser());
 
   protected selectedSubject = computed(() =>
     this.subjects().find(s => s.id === this.selectedSubjectId()) ?? null,
@@ -83,6 +76,15 @@ export class ChapterManagementComponent implements OnInit {
     this.chapters().find(c => c.id === this.selectedChapterId()) ?? null,
   );
 
+  /** Client-side filter based on BE-provided isOwner/isShared flags */
+  protected displayQuestions = computed(() => {
+    const qs = this.questions();
+    const filter = this.activeFilter();
+    if (filter === 'all') return qs;
+    if (filter === 'mine') return qs.filter(q => q.isOwner);
+    return qs.filter(q => q.isShared);
+  });
+
   ngOnInit() {
     this.loadSubjects();
   }
@@ -93,9 +95,7 @@ export class ChapterManagementComponent implements OnInit {
       next: (res) => {
         this.subjects.set(res.data.content);
         this.subjectsLoading.set(false);
-        if (res.data.content.length > 0) {
-          this.onSubjectChange(res.data.content[0].id);
-        }
+        if (res.data.content.length > 0) this.onSubjectChange(res.data.content[0].id);
       },
       error: () => {
         toast.error('Không thể tải danh sách môn học.');
@@ -131,10 +131,11 @@ export class ChapterManagementComponent implements OnInit {
     this.loadQuestions();
   }
 
-  /**
-   * Use getMyQuestions (authenticated) so BE returns isOwner/isShared context.
-   * For admin, BE returns ALL questions. For teacher, own + shared.
-   */
+  protected setFilter(filter: QuestionOwnership) {
+    this.activeFilter.set(filter);
+  }
+
+  /** Use getMyQuestions for authenticated context (isOwner/isShared populated) */
   private loadQuestions() {
     const chapterId = this.selectedChapterId();
     if (!chapterId) return;
@@ -143,7 +144,7 @@ export class ChapterManagementComponent implements OnInit {
     this.questionService.getMyQuestions({
       chapterId,
       page: this.questionPage(),
-      size: 20,
+      size: 50,
     }).subscribe({
       next: (res) => {
         this.questions.set(res.data.content);
@@ -158,104 +159,13 @@ export class ChapterManagementComponent implements OnInit {
     });
   }
 
-  // ===== Chapter CRUD =====
-
-  protected openCreateChapter() {
-    this.editingChapter.set(false);
-    this.editingChapterId.set(null);
-    this.chapterForm = { name: '', description: '' };
-    this.showChapterModal.set(true);
-  }
-
-  protected openEditChapter(chapter: ChapterResponse) {
-    this.editingChapter.set(true);
-    this.editingChapterId.set(chapter.id);
-    this.chapterForm = { name: chapter.name, description: chapter.description ?? '', orderIndex: chapter.orderIndex };
-    this.showChapterModal.set(true);
-  }
-
-  protected closeChapterModal() {
-    this.showChapterModal.set(false);
-  }
-
-  protected submitChapter() {
-    if (!this.chapterForm.name?.trim()) {
-      toast.warning('Tên chương không được để trống.');
-      return;
-    }
-    const subjectId = this.selectedSubjectId();
-    if (!subjectId) return;
-
-    this.isSaving.set(true);
-    if (this.editingChapter() && this.editingChapterId()) {
-      this.chapterService.update(subjectId, this.editingChapterId()!, this.chapterForm).subscribe({
-        next: () => {
-          this.isSaving.set(false);
-          toast.success('Cập nhật chương thành công!');
-          this.closeChapterModal();
-          this.loadChapters(subjectId);
-        },
-        error: (err) => {
-          this.isSaving.set(false);
-          toast.error(getChapterErrorMessage(err));
-        },
-      });
-    } else {
-      this.chapterService.create(subjectId, this.chapterForm).subscribe({
-        next: () => {
-          this.isSaving.set(false);
-          toast.success('Tạo chương thành công!');
-          this.closeChapterModal();
-          this.loadChapters(subjectId);
-        },
-        error: (err) => {
-          this.isSaving.set(false);
-          toast.error(getChapterErrorMessage(err));
-        },
-      });
-    }
-  }
-
-  protected confirmDeleteChapter(chapter: ChapterResponse) {
-    this.deletingChapter.set(chapter);
-    this.showDeleteChapterConfirm.set(true);
-  }
-
-  protected cancelDeleteChapter() {
-    this.showDeleteChapterConfirm.set(false);
-    this.deletingChapter.set(null);
-  }
-
-  protected executeDeleteChapter() {
-    const chapter = this.deletingChapter();
-    const subjectId = this.selectedSubjectId();
-    if (!chapter || !subjectId) return;
-
-    this.isSaving.set(true);
-    this.chapterService.delete(subjectId, chapter.id).subscribe({
-      next: () => {
-        this.isSaving.set(false);
-        toast.success(`Đã xóa chương "${chapter.name}".`);
-        this.cancelDeleteChapter();
-        if (this.selectedChapterId() === chapter.id) {
-          this.selectedChapterId.set('');
-          this.questions.set([]);
-        }
-        this.loadChapters(subjectId);
-      },
-      error: (err) => {
-        this.isSaving.set(false);
-        toast.error(getChapterErrorMessage(err));
-      },
-    });
-  }
-
-  // ===== Question CRUD =====
+  // ===== Question Actions =====
 
   protected openCreateQuestion() {
     this.editingQuestion.set(false);
     this.editingQuestionId.set(null);
     this.questionToEdit.set(null);
+    this.questionFormReadOnly.set(false);
     this.showQuestionModal.set(true);
   }
 
@@ -263,15 +173,26 @@ export class ChapterManagementComponent implements OnInit {
     this.editingQuestion.set(true);
     this.editingQuestionId.set(q.id);
     this.questionToEdit.set(q);
+    this.questionFormReadOnly.set(false);
+    this.showQuestionModal.set(true);
+  }
+
+  /** Open shared question in read-only mode */
+  protected openViewQuestion(q: QuestionResponse) {
+    this.editingQuestion.set(false);
+    this.editingQuestionId.set(null);
+    this.questionToEdit.set(q);
+    this.questionFormReadOnly.set(true);
     this.showQuestionModal.set(true);
   }
 
   protected closeQuestionModal() {
     this.showQuestionModal.set(false);
     this.questionToEdit.set(null);
+    this.questionFormReadOnly.set(false);
   }
 
-  handleQuestionSave(request: QuestionRequest) {
+  protected handleQuestionSave(request: QuestionRequest) {
     const chapterId = this.selectedChapterId();
     if (!chapterId) return;
 
@@ -337,12 +258,6 @@ export class ChapterManagementComponent implements OnInit {
     });
   }
 
-  protected goToQuestionPage(page: number) {
-    if (page < 0 || page >= this.questionTotalPages()) return;
-    this.questionPage.set(page);
-    this.loadQuestions();
-  }
-
   // Share
   protected openShareModal(q: QuestionResponse) {
     this.sharingQuestion.set(q);
@@ -358,8 +273,14 @@ export class ChapterManagementComponent implements OnInit {
     this.loadQuestions();
   }
 
-  // Helpers
+  // Pagination
+  protected goToQuestionPage(page: number) {
+    if (page < 0 || page >= this.questionTotalPages()) return;
+    this.questionPage.set(page);
+    this.loadQuestions();
+  }
+
   protected getPermissions(q: QuestionResponse): QuestionPermissions {
-    return getQuestionPermissions(q, this.authService.currentUser()?.role ?? null);
+    return getQuestionPermissions(q, this.currentUser()?.role ?? null);
   }
 }
