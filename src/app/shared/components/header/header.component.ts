@@ -6,7 +6,6 @@ import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-header',
-  standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
@@ -26,9 +25,14 @@ export class HeaderComponent {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
-  navigateToAdmin() {
+  navigateToManagement() {
     this.isDropdownOpen = false;
-    this.router.navigate(['/admin']);
+    const role = this.authService.currentUser()?.role;
+    if (role === 'ADMIN') {
+      this.router.navigate(['/admin']);
+    } else if (role === 'TEACHER') {
+      this.router.navigate(['/teacher']);
+    }
   }
 
   navigateToProfile(tab: 'profile' | 'password') {

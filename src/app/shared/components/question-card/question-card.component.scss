@@ -1,0 +1,154 @@
+.question-card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.question-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.question-number {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-primary-blue);
+}
+
+.question-badges {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.question-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.question-content {
+  font-size: 0.95rem;
+  color: var(--color-text-main);
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+}
+
+/* Options */
+.option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  background: #f8fafc;
+  border: 1px solid transparent;
+
+  &.correct {
+    background: #f0fff4;
+    border-color: #c6f6d5;
+  }
+}
+
+.option-label {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+
+  .correct & {
+    background: #38a169;
+    color: #fff;
+  }
+}
+
+.option-content {
+  flex: 1;
+  color: var(--color-text-main);
+}
+
+.option-check {
+  color: #38a169;
+  flex-shrink: 0;
+}
+
+.question-explanation {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #fffff0;
+  border: 1px solid #fefcbf;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  color: #744210;
+  line-height: 1.5;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Add default classes as fallback in case parent didn't set them */
+.badge-success { background: #f0fff4; color: #276749; }
+.badge-warning { background: #fffff0; color: #975a16; }
+.badge-danger { background: #fff5f5; color: #c53030; }
+.badge-secondary { background: #f7fafc; color: #4a5568; }
+.badge-type { background: #ebf5ff; color: #2b6cb0; }
+.badge-blue { background: #ebf8ff; color: #3182ce; }
+.badge-orange { background: #fffaf0; color: #dd6b20; }
+.badge-shared { background: #f0fff4; color: #276749; }
+
+.btn-icon-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--color-primary-blue);
+    color: var(--color-primary-blue);
+    background: #e8f0fe;
+  }
+}
+
+.btn-icon-danger:hover {
+  border-color: var(--color-error) !important;
+  color: var(--color-error) !important;
+  background: #fef2f2 !important;
+}
+
+.btn-icon-info:hover {
+  border-color: #38b2ac !important;
+  color: #38b2ac !important;
+  background: #e6fffa !important;
+}

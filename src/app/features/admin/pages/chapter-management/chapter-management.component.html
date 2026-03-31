@@ -1,0 +1,230 @@
+<div class="chapter-mgmt">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản lý câu hỏi</h1>
+      <p class="page-subtitle">Chọn môn học và chương để quản lý câu hỏi.</p>
+    </div>
+  </div>
+
+  <!-- Subject Selector -->
+  <div class="selector-bar">
+    <div class="selector-group">
+      <label class="selector-label" for="subjectSelect">Môn học</label>
+      @if (subjectsLoading()) {
+        <div class="selector-loading">Đang tải...</div>
+      } @else {
+        <select id="subjectSelect" class="selector-select" [ngModel]="selectedSubjectId()" (ngModelChange)="onSubjectChange($event)">
+          @for (subject of subjects(); track subject.id) {
+            <option [value]="subject.id">{{ subject.name }}</option>
+          }
+        </select>
+      }
+    </div>
+
+  </div>
+
+  <!-- Two-column layout: chapters + questions -->
+  <div class="content-grid">
+    <!-- Left: Chapters -->
+    <div class="chapters-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Chương</h2>
+        <button class="btn-sm btn-primary" (click)="openCreateChapter()" [disabled]="!selectedSubjectId()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Thêm
+        </button>
+      </div>
+
+      @if (chaptersLoading()) {
+        <div class="panel-loading">
+          <div class="spinner-sm"></div>
+        </div>
+      }
+
+      @if (!chaptersLoading() && chapters().length > 0) {
+        <div class="chapter-list">
+          @for (chapter of chapters(); track chapter.id; let idx = $index) {
+            <div class="chapter-row" [class.selected]="selectedChapterId() === chapter.id" (click)="onChapterSelect(chapter.id)">
+              <div class="chapter-row-info">
+                <span class="chapter-order">{{ idx + 1 }}</span>
+                <div class="chapter-row-text">
+                  <span class="chapter-row-name">{{ chapter.name }}</span>
+                  <span class="chapter-row-count">{{ chapter.questionCount }} câu hỏi</span>
+                </div>
+              </div>
+              <div class="chapter-row-actions">
+                <button class="btn-icon-sm" title="Sửa" (click)="openEditChapter(chapter); $event.stopPropagation()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                </button>
+                <button class="btn-icon-sm btn-icon-danger" title="Xóa" (click)="confirmDeleteChapter(chapter); $event.stopPropagation()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @if (!chaptersLoading() && chapters().length === 0 && selectedSubjectId()) {
+        <div class="panel-empty">Chưa có chương nào.</div>
+      }
+    </div>
+
+    <!-- Right: Questions -->
+    <div class="questions-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">
+          Câu hỏi
+          @if (selectedChapter(); as ch) {
+            <span class="panel-title-sub">— {{ ch.name }}</span>
+          }
+        </h2>
+        @if (selectedChapterId()) {
+          <button class="btn-sm btn-primary" (click)="openCreateQuestion()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Thêm câu hỏi
+          </button>
+        }
+      </div>
+
+      @if (!selectedChapterId()) {
+        <div class="panel-empty">Chọn một chương để xem câu hỏi.</div>
+      }
+
+      @if (selectedChapterId() && questionsLoading()) {
+        <div class="panel-loading">
+          <div class="spinner-sm"></div>
+        </div>
+      }
+
+      @if (selectedChapterId() && !questionsLoading() && questions().length > 0) {
+        <div class="question-list">
+          @for (q of questions(); track q.id; let idx = $index) {
+            <app-question-card
+              [question]="q"
+              [index]="questionPage() * 20 + idx + 1"
+              [permissions]="getPermissions(q)"
+              [enableKatex]="isKatexEnabled()"
+              (edit)="openEditQuestion($event)"
+              (delete)="confirmDeleteQuestion($event)"
+              (share)="openShareModal($event)">
+            </app-question-card>
+          }
+        </div>
+
+        <!-- Pagination -->
+        @if (questionTotalPages() > 1) {
+          <div class="pagination">
+            <button class="page-btn" [disabled]="questionPage() === 0" (click)="goToQuestionPage(questionPage() - 1)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="page-info">Trang {{ questionPage() + 1 }} / {{ questionTotalPages() }}</span>
+            <button class="page-btn" [disabled]="questionPage() >= questionTotalPages() - 1" (click)="goToQuestionPage(questionPage() + 1)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        }
+      }
+
+      @if (selectedChapterId() && !questionsLoading() && questions().length === 0) {
+        <div class="panel-empty">
+          Chưa có câu hỏi nào.
+          <button class="btn-link" (click)="openCreateQuestion()">Tạo câu hỏi đầu tiên</button>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Chapter Modal -->
+@if (showChapterModal()) {
+  <div class="modal-backdrop" (click)="closeChapterModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeChapterModal()" aria-label="Đóng">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+      <h2 class="modal-title">{{ editingChapter() ? 'Sửa chương' : 'Thêm chương mới' }}</h2>
+      <form class="form-vertical" (ngSubmit)="submitChapter()">
+        <div class="form-group">
+          <label class="form-label" for="chapterName">Tên chương <span class="required">*</span></label>
+          <input type="text" id="chapterName" class="form-control" [(ngModel)]="chapterForm.name" name="name" placeholder="VD: Hàm số và đồ thị" [disabled]="isSaving()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="chapterDesc">Mô tả</label>
+          <textarea id="chapterDesc" class="form-control" [(ngModel)]="chapterForm.description" name="description" rows="3" placeholder="Mô tả ngắn..." [disabled]="isSaving()"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" (click)="closeChapterModal()" [disabled]="isSaving()">Hủy</button>
+          <button type="submit" class="btn-primary" [disabled]="isSaving()">
+            {{ isSaving() ? 'Đang lưu...' : (editingChapter() ? 'Cập nhật' : 'Tạo mới') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Question Modal -->
+@if (showQuestionModal()) {
+  <div class="modal-backdrop" (click)="closeQuestionModal()">
+    <div class="modal-container modal-xl" (click)="$event.stopPropagation()">
+      <app-question-form 
+        [questionToEdit]="questionToEdit()"
+        [isKatexEnabled]="isKatexEnabled()"
+        [isSaving]="isSaving()"
+        (save)="handleQuestionSave($event)"
+        (cancel)="closeQuestionModal()">
+      </app-question-form>
+    </div>
+  </div>
+}
+
+<!-- Delete Chapter Confirm -->
+@if (showDeleteChapterConfirm()) {
+  <div class="modal-backdrop" (click)="cancelDeleteChapter()">
+    <div class="modal-container modal-sm" (click)="$event.stopPropagation()">
+      <div class="confirm-content">
+        <div class="confirm-icon-danger">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <h3>Xác nhận xóa chương</h3>
+        <p>Bạn có chắc muốn xóa chương <strong>"{{ deletingChapter()?.name }}"</strong>? Tất cả câu hỏi trong chương sẽ bị xóa.</p>
+        <div class="form-actions center">
+          <button class="btn-outline" (click)="cancelDeleteChapter()" [disabled]="isSaving()">Hủy</button>
+          <button class="btn-danger" (click)="executeDeleteChapter()" [disabled]="isSaving()">
+            {{ isSaving() ? 'Đang xóa...' : 'Xóa' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Share Modal -->
+<app-share-modal
+  [isOpen]="showShareModal()"
+  [question]="sharingQuestion()"
+  (closeModal)="closeShareModal()"
+  (shareChanged)="onShareChanged()">
+</app-share-modal>
+
+<!-- Delete Question Confirm -->
+@if (showDeleteQuestionConfirm()) {
+  <div class="modal-backdrop" (click)="cancelDeleteQuestion()">
+    <div class="modal-container modal-sm" (click)="$event.stopPropagation()">
+      <div class="confirm-content">
+        <div class="confirm-icon-danger">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <h3>Xác nhận xóa câu hỏi</h3>
+        <p>Bạn có chắc muốn xóa câu hỏi này? Thao tác này không thể hoàn tác.</p>
+        <div class="form-actions center">
+          <button class="btn-outline" (click)="cancelDeleteQuestion()" [disabled]="isSaving()">Hủy</button>
+          <button class="btn-danger" (click)="executeDeleteQuestion()" [disabled]="isSaving()">
+            {{ isSaving() ? 'Đang xóa...' : 'Xóa' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

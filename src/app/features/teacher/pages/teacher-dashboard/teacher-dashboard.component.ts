@@ -1,9 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 
-/** Teacher - teacher-dashboard page. TODO: Implement */
 @Component({
   selector: 'app-teacher-dashboard',
-  standalone: true,
-  template: '<h2>teacher-dashboard works!</h2>',
+  imports: [RouterModule],
+  templateUrl: './teacher-dashboard.component.html',
+  styleUrls: ['./teacher-dashboard.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TeacherDashboardComponent {}
+export class TeacherDashboardComponent {
+  private authService = inject(AuthService);
+  protected userName = this.authService.currentUser()?.lastName ?? 'Giáo viên';
+}

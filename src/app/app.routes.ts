@@ -45,6 +45,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/pages/home.component';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'EduQuiz - Luyện thi & Đánh giá năng lực' },
@@ -58,7 +59,8 @@ export const routes: Routes = [
   {
     path: 'admin',
     loadComponent: () => import('./layouts/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN'] },
     children: [
       {
         path: '',
@@ -100,6 +102,34 @@ export const routes: Routes = [
       }
     ]
   },
-  // Additional routes will go here
+  // Teacher area with sidebar layout
+  {
+    path: 'teacher',
+    loadComponent: () => import('./layouts/teacher-layout/teacher-layout.component').then(m => m.TeacherLayoutComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['TEACHER'] },
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/teacher/pages/teacher-dashboard/teacher-dashboard.component').then(m => m.TeacherDashboardComponent),
+        title: 'Giáo viên - EduQuiz'
+      },
+      {
+        path: 'questions',
+        loadComponent: () => import('./features/teacher/pages/question-management/teacher-question-management.component').then(m => m.TeacherQuestionManagementComponent),
+        title: 'Ngân hàng câu hỏi - EduQuiz'
+      },
+      {
+        path: 'exams',
+        loadComponent: () => import('./features/teacher/pages/exam-placeholder.component').then(m => m.ExamPlaceholderComponent),
+        title: 'Quản lý đề thi - EduQuiz'
+      },
+      {
+        path: 'rooms',
+        loadComponent: () => import('./features/teacher/pages/room-placeholder.component').then(m => m.RoomPlaceholderComponent),
+        title: 'Quản lý phòng thi - EduQuiz'
+      }
+    ]
+  },
   { path: '**', redirectTo: '' }
 ];

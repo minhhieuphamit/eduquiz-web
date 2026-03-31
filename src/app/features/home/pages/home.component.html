@@ -45,25 +45,87 @@
     </div>
   }
 
-  <!-- Subject Grid -->
+  <!-- Subject Tabs + Chapters -->
   @if (!isLoading() && !hasError() && subjects().length > 0) {
-    <section class="subject-grid">
+    <!-- Subject Tab Bar -->
+    <div class="subject-tabs" role="tablist">
       @for (subject of subjects(); track subject.id) {
-        <a class="subject-card" [attr.aria-label]="'Môn ' + subject.name">
-          <div class="card-image-wrapper" [style.background-color]="getColor(subject)">
-            @if (hasImage(subject)) {
-              <img [src]="subject.imageUrl" [alt]="subject.name" class="card-image" loading="lazy" (error)="onImageError(subject.id)">
-            } @else {
-              <div class="card-icon" [innerHTML]="getFallbackIcon(subject)"></div>
+        <button class="subject-tab"
+          role="tab"
+          [class.active]="isSelected(subject)"
+          [attr.aria-selected]="isSelected(subject)"
+          (click)="selectSubject(subject)">
+          {{ subject.name }}
+        </button>
+      }
+    </div>
+
+    <!-- Selected Subject Content -->
+    @if (selectedSubject(); as subject) {
+      <section class="subject-detail">
+        <div class="subject-detail-header">
+          <h2 class="subject-detail-title">Các dạng {{ subject.name }} thi THPT Quốc Gia</h2>
+          @if (subject.description) {
+            <p class="subject-detail-desc">{{ subject.description }}</p>
+          }
+        </div>
+
+        <div class="subject-detail-body">
+          <!-- Chapter List -->
+          <div class="chapter-list-wrapper">
+            @if (chaptersLoading()) {
+              <div class="chapters-loading">
+                @for (i of [1,2,3,4]; track i) {
+                  <div class="chapter-skeleton">
+                    <div class="skeleton-bar"></div>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (!chaptersLoading() && chapters().length > 0) {
+              <div class="chapter-list">
+                @for (chapter of chapters(); track chapter.id; let idx = $index) {
+                  <div class="chapter-item" [class.expanded]="isChapterExpanded(chapter.id)">
+                    <button class="chapter-header" (click)="toggleChapter(chapter.id)" [attr.aria-expanded]="isChapterExpanded(chapter.id)">
+                      <div class="chapter-number" [style.background-color]="getColor(subject)">
+                        {{ (idx + 1) < 10 ? '0' + (idx + 1) : (idx + 1) }}
+                      </div>
+                      <div class="chapter-info">
+                        <span class="chapter-name">Chương {{ idx + 1 }}: {{ chapter.name }}</span>
+                        <span class="chapter-meta">{{ chapter.questionCount }} câu hỏi luyện tập</span>
+                      </div>
+                      <svg class="chapter-chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+
+                    @if (isChapterExpanded(chapter.id)) {
+                      <div class="chapter-body">
+                        @if (chapter.description) {
+                          <p class="chapter-description">{{ chapter.description }}</p>
+                        }
+                        <div class="chapter-actions">
+                          <span class="chapter-stat">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                            {{ chapter.questionCount }} câu hỏi
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @if (!chaptersLoading() && chapters().length === 0) {
+              <div class="chapters-empty">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <p>Chưa có chương nào cho môn {{ subject.name }}.</p>
+              </div>
             }
           </div>
-          <div class="card-content">
-            <h3 class="card-title">{{ subject.name }}</h3>
-            <p class="card-description">{{ subject.description }}</p>
-          </div>
-        </a>
-      }
-    </section>
+        </div>
+      </section>
+    }
   }
 
   <!-- Empty State -->
