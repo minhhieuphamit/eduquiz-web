@@ -1,0 +1,176 @@
+<div class="exam-mgmt">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản lý đề thi</h1>
+      <p class="page-subtitle">Tạo, chỉnh sửa và quản lý đề thi cho các môn học.</p>
+    </div>
+    <button class="btn btn-primary-blue" (click)="openCreate()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Tạo đề thi
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label class="filter-label" for="subjectFilter">Môn học</label>
+      <select id="subjectFilter" class="filter-select" [(ngModel)]="selectedSubjectId" (ngModelChange)="onSubjectChange()">
+        <option value="">Tất cả môn</option>
+        @for (s of subjects(); track s.id) {
+          <option [value]="s.id">{{ s.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label" for="typeFilter">Loại đề</label>
+      <select id="typeFilter" class="filter-select" [(ngModel)]="selectedExamType" (ngModelChange)="onExamTypeChange()" [disabled]="!canFilterByType()">
+        <option value="">Tất cả</option>
+        <option value="OFFICIAL">Chính thức</option>
+        <option value="MOCK">Thử</option>
+        <option value="PRACTICE">Luyện tập</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Đang tải dữ liệu...</p>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!isLoading() && exams().length > 0) {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 54px;">STT</th>
+            <th>Tên đề thi</th>
+            <th>Môn học</th>
+            <th style="width: 100px;">Loại</th>
+            <th style="width: 110px;">Chế độ</th>
+            <th style="width: 70px;">Năm</th>
+            <th style="width: 80px;">Số câu</th>
+            <th style="width: 100px;">Quyền hạn</th>
+            <th style="width: 170px;">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (exam of exams(); track exam.id; let i = $index) {
+            <tr>
+              <td class="text-center">{{ page() * 20 + i + 1 }}</td>
+              <td>
+                <button class="link-btn" (click)="openDetail(exam)">{{ exam.title }}</button>
+              </td>
+              <td class="text-muted">{{ exam.subjectName }}</td>
+              <td>
+                <span class="badge" [class]="examTypeBadge(exam.examType).cls">{{ examTypeBadge(exam.examType).label }}</span>
+              </td>
+              <td>
+                <span class="badge" [class]="randomModeBadge(exam.randomMode).cls">{{ randomModeBadge(exam.randomMode).label }}</span>
+              </td>
+              <td class="text-center text-muted">{{ exam.year ?? '—' }}</td>
+              <td class="text-center">{{ exam.totalQuestions }}</td>
+              <td>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  @if (isOwner(exam)) {
+                    <span class="badge badge-success text-center">Của tôi</span>
+                    @if (exam.isShared) { <span class="badge badge-info text-center" title="Đã chia sẻ cho cộng đồng GV">Đã Share</span> }
+                  } @else {
+                    <span class="badge text-center" style="background-color:#e2e8f0; color:#475569" title="Đề thi chia sẻ">Read Only</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-icon" title="Xem chi tiết" (click)="openDetail(exam)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="btn-icon" style="color: #6366f1" title="Tạo phòng thi" (click)="createRoomFromExam(exam)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                  </button>
+                  @if (isOwner(exam)) {
+                    <button class="btn-icon" [style.color]="exam.isShared?'#f59e0b':'#64748b'" [title]="exam.isShared ? 'Tắt chia sẻ' : 'Chia sẻ cho GV khác'" (click)="toggleShare(exam)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    </button>
+                    <button class="btn-icon btn-edit" title="Chỉnh sửa" (click)="openEdit(exam)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                    </button>
+                    <button class="btn-icon btn-delete" title="Xóa" (click)="confirmDelete(exam)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button class="btn-page" [disabled]="page() === 0" (click)="goToPage(page() - 1)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="page-info">Trang {{ page() + 1 }} / {{ totalPages() }}</span>
+        <button class="btn-page" [disabled]="page() >= totalPages() - 1" (click)="goToPage(page() + 1)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    }
+  }
+
+  <!-- Empty -->
+  @if (!isLoading() && exams().length === 0) {
+    <div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <p>Chưa có đề thi nào.</p>
+      <button class="btn btn-primary-blue" (click)="openCreate()">Tạo đề thi đầu tiên</button>
+    </div>
+  }
+</div>
+
+<!-- Form Modal -->
+@if (showFormModal()) {
+  <app-exam-form-modal
+    [exam]="editingExam()"
+    [subjects]="subjects()"
+    (save)="onFormSaved()"
+    (cancel)="closeFormModal()"
+  />
+}
+
+<!-- Detail Modal -->
+@if (showDetailModal()) {
+  <app-exam-detail-modal
+    [exam]="viewingExam()!"
+    (close)="closeDetailModal()"
+    (edit)="onEditFromDetail($event)"
+  />
+}
+
+<!-- Delete Confirmation -->
+@if (showDeleteConfirm()) {
+  <div class="modal-backdrop" (click)="cancelDelete()">
+    <div class="modal-container modal-sm" (click)="$event.stopPropagation()">
+      <div class="confirm-content">
+        <div class="confirm-icon-danger">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <h3>Xác nhận vô hiệu hóa</h3>
+        <p>Bạn có chắc muốn vô hiệu hóa đề thi <strong>"{{ deletingExam()?.title }}"</strong>?</p>
+        <div class="confirm-actions">
+          <button class="btn btn-outline-gray" (click)="cancelDelete()" [disabled]="isSaving()">Hủy</button>
+          <button class="btn btn-danger" (click)="executeDelete()" [disabled]="isSaving()">
+            {{ isSaving() ? 'Đang xử lý...' : 'Vô hiệu hóa' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

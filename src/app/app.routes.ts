@@ -55,6 +55,40 @@ export const routes: Routes = [
     canActivate: [authGuard],
     title: 'Thông tin cá nhân - EduQuiz'
   },
+  // Student area with main layout
+  {
+    path: '',
+    loadComponent: () => import('./layouts/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['STUDENT'] },
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/dashboard/pages/student-dashboard/student-dashboard.component').then(m => m.StudentDashboardComponent),
+        title: 'Bảng điều khiển - EduQuiz'
+      },
+      {
+        path: 'rooms/join',
+        loadComponent: () => import('./features/student/pages/join-room/join-room.component').then(m => m.JoinRoomComponent),
+        title: 'Tham gia phòng thi - EduQuiz'
+      },
+      {
+        path: 'rooms/:id/waiting',
+        loadComponent: () => import('./features/student/pages/waiting-room/waiting-room.component').then(m => m.WaitingRoomComponent),
+        title: 'Phòng chờ - EduQuiz'
+      },
+      {
+        path: 'exams/:id/take',
+        loadComponent: () => import('./features/student/pages/exam-taking/exam-taking.component').then(m => m.ExamTakingComponent),
+        title: 'Làm bài thi - EduQuiz'
+      },
+      {
+        path: 'exams/:id/result',
+        loadComponent: () => import('./features/student/pages/exam-result/exam-result.component').then(m => m.ExamResultComponent),
+        title: 'Kết quả - EduQuiz'
+      }
+    ]
+  },
   // Admin area with sidebar layout
   {
     path: 'admin',
@@ -121,13 +155,23 @@ export const routes: Routes = [
       },
       {
         path: 'exams',
-        loadComponent: () => import('./features/teacher/pages/exam-placeholder.component').then(m => m.ExamPlaceholderComponent),
+        loadComponent: () => import('./features/teacher/pages/exam-management/exam-management.component').then(m => m.ExamManagementComponent),
         title: 'Quản lý đề thi - EduQuiz'
       },
       {
         path: 'rooms',
-        loadComponent: () => import('./features/teacher/pages/room-placeholder.component').then(m => m.RoomPlaceholderComponent),
+        loadComponent: () => import('./features/teacher/pages/room-management/room-management.component').then(m => m.RoomManagementComponent),
         title: 'Quản lý phòng thi - EduQuiz'
+      },
+      {
+        path: 'rooms/new',
+        loadComponent: () => import('./features/teacher/pages/room-form/room-form.component').then(m => m.RoomFormComponent),
+        title: 'Tạo phòng thi - EduQuiz'
+      },
+      {
+        path: 'rooms/:id',
+        loadComponent: () => import('./features/teacher/pages/room-detail/room-detail.component').then(m => m.RoomDetailComponent),
+        title: 'Chi tiết phòng thi - EduQuiz'
       }
     ]
   },

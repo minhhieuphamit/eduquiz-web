@@ -1,0 +1,98 @@
+<div class="modal-backdrop" (click)="cancel.emit()">
+  <div class="modal-container modal-xl" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="cancel.emit()" aria-label="Đóng">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+
+    <h2 class="modal-title">Chọn câu hỏi</h2>
+
+    <!-- Filters -->
+    <div class="picker-filters">
+      <div class="filter-group">
+        <label class="filter-label" for="pickerChapter">Chương</label>
+        <select id="pickerChapter" class="filter-select" [(ngModel)]="selectedChapterId" (ngModelChange)="onChapterChange()">
+          <option value="">Tất cả chương</option>
+          @for (ch of chapters(); track ch.id) {
+            <option [value]="ch.id">{{ ch.name }} ({{ ch.questionCount }})</option>
+          }
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label" for="pickerDiff">Độ khó</label>
+        <select id="pickerDiff" class="filter-select" [(ngModel)]="selectedDifficulty" (ngModelChange)="onFilterChange()">
+          <option value="">Tất cả</option>
+          <option value="EASY">Dễ</option>
+          <option value="MEDIUM">Trung bình</option>
+          <option value="HARD">Khó</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label" for="pickerType">Loại</label>
+        <select id="pickerType" class="filter-select" [(ngModel)]="selectedType" (ngModelChange)="onFilterChange()">
+          <option value="">Tất cả</option>
+          <option value="SINGLE_CHOICE">Một đáp án</option>
+          <option value="MULTI_CHOICE">Nhiều đáp án</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Question List -->
+    <div class="question-list">
+      @if (isLoadingQuestions()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Đang tải câu hỏi...</p>
+        </div>
+      }
+
+      @if (!isLoadingQuestions() && questions().length === 0) {
+        <div class="empty-state">
+          <p>Không tìm thấy câu hỏi. Hãy thử thay đổi bộ lọc.</p>
+        </div>
+      }
+
+      @if (!isLoadingQuestions() && questions().length > 0) {
+        @for (q of questions(); track q.id) {
+          <label class="question-item" [class.selected]="isSelected(q.id)">
+            <input type="checkbox" [checked]="isSelected(q.id)" (change)="toggleQuestion(q)">
+            <div class="question-content">
+              <div class="question-text">
+                @if (enableKatex()) {
+                  <app-math-content [content]="q.content" />
+                } @else {
+                  {{ q.content }}
+                }
+              </div>
+              <div class="question-meta">
+                <span class="diff-badge" [class]="getDifficultyClass(q.difficulty)">{{ getDifficultyLabel(q.difficulty) }}</span>
+                <span class="meta-text">{{ q.chapterName }}</span>
+              </div>
+            </div>
+          </label>
+        }
+
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+          <div class="pagination">
+            <button class="btn-page" [disabled]="page() === 0" (click)="goToPage(page() - 1)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="page-info">{{ page() + 1 }} / {{ totalPages() }}</span>
+            <button class="btn-page" [disabled]="page() >= totalPages() - 1" (click)="goToPage(page() + 1)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="picker-footer">
+      <span class="selected-count">Đã chọn: {{ selectedCount() }} câu</span>
+      <div class="footer-actions">
+        <button class="btn btn-outline-gray" (click)="cancel.emit()">Hủy</button>
+        <button class="btn btn-primary-blue" (click)="onConfirm()">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+</div>

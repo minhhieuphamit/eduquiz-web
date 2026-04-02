@@ -1,0 +1,108 @@
+<div class="exam-result-container">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Đang tải kết quả bài làm...</p>
+    </div>
+  } @else if (resultData(); as result) {
+    <!-- Header -->
+    <div class="result-header">
+      <div class="header-content">
+        <a routerLink="/dashboard" class="btn-back" title="Về trang chủ">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </a>
+        <div class="title-section">
+          <h1 class="page-title">{{ result.examTitle }}</h1>
+          <div class="badges">
+            <span class="badge badge-info">{{ result.subjectName }}</span>
+            <span class="badge badge-success">Đã nộp bài lúc {{ result.submittedAt | date:'HH:mm dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-layout">
+      <!-- Left: Result Summary -->
+      <div class="summary-section">
+        <div class="score-card">
+          <div class="score-circle">
+            <div class="score-value">{{ result.score | number:'1.0-1' }}</div>
+            <div class="score-label">Điểm số</div>
+          </div>
+          
+          <div class="stats-list">
+            <div class="stat-item">
+              <span class="stat-label">Số câu đúng</span>
+              <span class="stat-value text-success">{{ result.correctCount }} / {{ result.totalQuestions }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Số câu sai</span>
+              <span class="stat-value text-danger">{{ result.totalQuestions - result.correctCount }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Tỉ lệ đúng</span>
+              <span class="stat-value text-info">{{ (result.correctCount / result.totalQuestions * 100) | number:'1.0-1' }}%</span>
+            </div>
+          </div>
+
+          <div class="actions mt-4">
+            <a routerLink="/dashboard" class="btn btn-primary-blue w-100">Quay về trang chủ</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Detailed Answers -->
+      <div class="detail-section">
+        <div class="detail-card">
+          <div class="card-header">
+            <h3>Chi tiết bài làm</h3>
+          </div>
+          <div class="card-body p-0">
+            @for (ans of result.answers; track ans.questionId; let i = $index) {
+              <div class="question-result-item" [class.is-correct]="ans.isCorrect" [class.is-wrong]="!ans.isCorrect">
+                <div class="question-status-icon">
+                  @if (ans.isCorrect) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-danger"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  }
+                </div>
+                
+                <div class="question-content-wrapper">
+                  <h4 class="question-number">Câu {{ i + 1 }}</h4>
+                  <div class="question-text" [innerHTML]="ans.content"></div>
+                  
+                  <div class="options-grid">
+                    <div class="option" [class.selected]="ans.selectedAnswer === 'A'" [class.correct]="ans.correctAnswer === 'A'">
+                      <span class="opt-label">A</span>
+                      <span class="opt-text" [innerHTML]="ans.optionA"></span>
+                    </div>
+                    <div class="option" [class.selected]="ans.selectedAnswer === 'B'" [class.correct]="ans.correctAnswer === 'B'">
+                      <span class="opt-label">B</span>
+                      <span class="opt-text" [innerHTML]="ans.optionB"></span>
+                    </div>
+                    <div class="option" [class.selected]="ans.selectedAnswer === 'C'" [class.correct]="ans.correctAnswer === 'C'">
+                      <span class="opt-label">C</span>
+                      <span class="opt-text" [innerHTML]="ans.optionC"></span>
+                    </div>
+                    <div class="option" [class.selected]="ans.selectedAnswer === 'D'" [class.correct]="ans.correctAnswer === 'D'">
+                      <span class="opt-label">D</span>
+                      <span class="opt-text" [innerHTML]="ans.optionD"></span>
+                    </div>
+                  </div>
+
+                  @if (ans.explanation) {
+                    <div class="explanation-box">
+                      <h5>Giải thích:</h5>
+                      <div [innerHTML]="ans.explanation"></div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

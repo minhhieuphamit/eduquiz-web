@@ -1,22 +1,37 @@
-export interface Exam {
-  id: number;
+import { QuestionResponse } from './question.model';
+
+export type RandomMode = 'FULL_RANDOM' | 'POOL_RANDOM' | 'MANUAL';
+export type ExamType = 'OFFICIAL' | 'MOCK' | 'PRACTICE';
+
+export interface ExamResponse {
+  id: string;
   title: string;
-  subjectId: number;
+  description: string | null;
+  subjectId: string;
   subjectName: string;
-  durationMinutes: number;
+  durationMinutes: number | null;
   totalQuestions: number;
-  randomMode: 'FULL_RANDOM' | 'POOL_RANDOM' | 'MANUAL';
-  isActive: boolean;
+  randomMode: RandomMode;
+  year: number | null;
+  examType: ExamType;
+  createdById: string;
   createdByName: string;
+  isShared: boolean;
   createdAt: string;
+  updatedAt: string;
+  questions: QuestionResponse[] | null;
 }
 
 export interface CreateExamRequest {
   title: string;
-  subjectId: number;
+  description?: string;
+  subjectId: string;
   durationMinutes?: number;
-  totalQuestions: number;
-  randomMode: string;
-  difficulty?: string;
-  questionIds?: number[];  // MANUAL mode
+  randomMode: RandomMode;
+  year?: number;
+  examType?: ExamType;
+  totalQuestions?: number;
+  questionIds?: string[];
+  chapterIds?: string[];
+  difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
 }

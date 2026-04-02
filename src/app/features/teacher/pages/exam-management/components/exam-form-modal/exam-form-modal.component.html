@@ -1,0 +1,165 @@
+<div class="modal-backdrop" (click)="cancel.emit()">
+  <div class="modal-container modal-xl" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="cancel.emit()" aria-label="Đóng">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+
+    <h2 class="modal-title">{{ isEditing() ? 'Chỉnh sửa đề thi' : 'Tạo đề thi mới' }}</h2>
+
+    <form class="exam-form" (ngSubmit)="onSubmit()">
+      <!-- Row 1: Title + Subject -->
+      <div class="form-row">
+        <div class="form-group flex-2">
+          <label class="form-label" for="examTitle">Tên đề thi <span class="required">*</span></label>
+          <input type="text" id="examTitle" class="form-control" placeholder="VD: Đề kiểm tra giữa kỳ Toán 12..." [(ngModel)]="title" name="title" required maxlength="200" [disabled]="isSaving()">
+        </div>
+        <div class="form-group flex-1">
+          <label class="form-label" for="examSubject">Môn học <span class="required">*</span></label>
+          <select id="examSubject" class="form-control" [(ngModel)]="subjectId" name="subjectId" required [disabled]="isSaving() || isEditing()" (ngModelChange)="onSubjectChange()">
+            <option value="">-- Chọn môn --</option>
+            @for (s of subjects(); track s.id) {
+              <option [value]="s.id">{{ s.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 2: ExamType + Year + Duration -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="examExamType">Loại đề</label>
+          <select id="examExamType" class="form-control" [(ngModel)]="examType" name="examType" [disabled]="isSaving()">
+            <option value="PRACTICE">Luyện tập</option>
+            <option value="MOCK">Thử</option>
+            <option value="OFFICIAL">Chính thức</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="examYear">Năm</label>
+          <input type="number" id="examYear" class="form-control" placeholder="VD: 2025" [(ngModel)]="year" name="year" min="2000" max="2100" [disabled]="isSaving()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="examDuration">Thời lượng (phút)</label>
+          <input type="number" id="examDuration" class="form-control" placeholder="VD: 45" [(ngModel)]="durationMinutes" name="durationMinutes" min="1" [disabled]="isSaving()">
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label class="form-label" for="examDesc">Mô tả</label>
+        <textarea id="examDesc" class="form-control" placeholder="Mô tả ngắn về đề thi..." [(ngModel)]="description" name="description" rows="2" [disabled]="isSaving()"></textarea>
+      </div>
+
+      <!-- Random Mode -->
+      <div class="form-group">
+        <label class="form-label">Chế độ tạo đề <span class="required">*</span></label>
+        <div class="mode-tabs">
+          <button type="button" class="mode-tab" [class.active]="randomMode() === 'MANUAL'" (click)="randomMode.set('MANUAL'); onRandomModeChange()" [disabled]="isSaving()">
+            Thủ công
+          </button>
+          <button type="button" class="mode-tab" [class.active]="randomMode() === 'FULL_RANDOM'" (click)="randomMode.set('FULL_RANDOM'); onRandomModeChange()" [disabled]="isSaving()">
+            Ngẫu nhiên
+          </button>
+          <button type="button" class="mode-tab" [class.active]="randomMode() === 'POOL_RANDOM'" (click)="randomMode.set('POOL_RANDOM'); onRandomModeChange()" [disabled]="isSaving()">
+            Pool chương
+          </button>
+        </div>
+      </div>
+
+      <!-- MANUAL mode -->
+      @if (randomMode() === 'MANUAL') {
+        <div class="mode-section">
+          <div class="mode-header">
+            <span class="mode-info">Đã chọn {{ manualQuestionCount() }} câu hỏi</span>
+            <button type="button" class="btn btn-sm btn-outline" (click)="openQuestionPicker()" [disabled]="isSaving()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Chọn câu hỏi
+            </button>
+          </div>
+
+          @if (selectedQuestions().length > 0) {
+            <div class="selected-questions">
+              @for (q of selectedQuestions(); track q.id; let i = $index) {
+                <div class="selected-q-item">
+                  <span class="q-index">{{ i + 1 }}</span>
+                  <span class="q-text">{{ q.content }}</span>
+                  <button type="button" class="btn-remove" (click)="removeQuestion(q.id)" title="Bỏ chọn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- FULL_RANDOM mode -->
+      @if (randomMode() === 'FULL_RANDOM') {
+        <div class="mode-section">
+          <div class="form-group">
+            <label class="form-label" for="totalQFull">Số câu hỏi <span class="required">*</span></label>
+            <input type="number" id="totalQFull" class="form-control" placeholder="VD: 40" [(ngModel)]="totalQuestions" name="totalQuestionsFull" min="1" [disabled]="isSaving()">
+          </div>
+          <p class="mode-hint">Hệ thống sẽ chọn ngẫu nhiên câu hỏi từ toàn bộ ngân hàng câu hỏi của môn học.</p>
+        </div>
+      }
+
+      <!-- POOL_RANDOM mode -->
+      @if (randomMode() === 'POOL_RANDOM') {
+        <div class="mode-section">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label class="form-label" for="totalQPool">Số câu hỏi <span class="required">*</span></label>
+              <input type="number" id="totalQPool" class="form-control" placeholder="VD: 30" [(ngModel)]="totalQuestions" name="totalQuestionsPool" min="1" [disabled]="isSaving()">
+            </div>
+            <div class="form-group flex-1">
+              <label class="form-label" for="poolDiff">Độ khó (tùy chọn)</label>
+              <select id="poolDiff" class="form-control" [(ngModel)]="difficulty" name="difficulty" [disabled]="isSaving()">
+                <option value="">Tất cả</option>
+                <option value="EASY">Dễ</option>
+                <option value="MEDIUM">Trung bình</option>
+                <option value="HARD">Khó</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="form-label">Chọn chương <span class="required">*</span></label>
+          @if (isLoadingChapters()) {
+            <p class="mode-hint">Đang tải...</p>
+          } @else if (chapters().length === 0) {
+            <p class="mode-hint">Không có chương nào. Vui lòng chọn môn học trước.</p>
+          } @else {
+            <div class="chapter-checkboxes">
+              @for (ch of chapters(); track ch.id) {
+                <label class="chapter-check">
+                  <input type="checkbox" [checked]="isChapterSelected(ch.id)" (change)="toggleChapter(ch.id)">
+                  <span>{{ ch.name }} ({{ ch.questionCount }})</span>
+                </label>
+              }
+            </div>
+          }
+          <p class="mode-hint">Hệ thống sẽ chọn ngẫu nhiên câu hỏi từ các chương đã chọn.</p>
+        </div>
+      }
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline-gray" (click)="cancel.emit()" [disabled]="isSaving()">Hủy</button>
+        <button type="submit" class="btn btn-primary-blue" [disabled]="isSaving()">
+          {{ isSaving() ? 'Đang lưu...' : (isEditing() ? 'Cập nhật' : 'Tạo đề thi') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Question Picker (stacked modal) -->
+@if (showQuestionPicker()) {
+  <app-question-picker-modal
+    [subjectId]="subjectId()"
+    [subjectName]="selectedSubjectName()"
+    [alreadySelected]="selectedQuestions().map(q => q.id)"
+    (confirm)="onQuestionsPicked($event)"
+    (cancel)="showQuestionPicker.set(false)"
+  />
+}

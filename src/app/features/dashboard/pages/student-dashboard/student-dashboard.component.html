@@ -1,0 +1,30 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Xin chào, {{ userName }}!</h1>
+    <p class="dashboard-subtitle">Tham gia phòng thi và kiểm tra kiến thức của bạn.</p>
+  </div>
+
+  <div class="quick-actions">
+    <h2 class="section-title">Thao tác nhanh</h2>
+    <div class="actions-grid">
+      <a routerLink="/rooms/join" class="action-card">
+        <div class="action-icon action-icon-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        </div>
+        <span>Tham gia phòng thi</span>
+      </a>
+      <a href="javascript:void(0)" class="action-card action-card-disabled">
+        <div class="action-icon action-icon-orange">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <span>Lịch sử bài thi</span>
+      </a>
+      <a href="javascript:void(0)" class="action-card action-card-disabled">
+        <div class="action-icon action-icon-green">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C5.71 4 7 5.29 7 6.5V8"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C18.29 4 17 5.29 17 6.5V8"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        </div>
+        <span>Bảng xếp hạng</span>
+      </a>
+    </div>
+  </div>
+</div>

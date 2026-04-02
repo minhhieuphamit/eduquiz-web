@@ -1,0 +1,76 @@
+<div class="modal-backdrop" (click)="close.emit()">
+  <div class="modal-container modal-xl" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="close.emit()" aria-label="Đóng">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+
+    <!-- Header -->
+    <div class="detail-header">
+      <h2 class="modal-title">{{ exam().title }}</h2>
+      <div class="detail-meta">
+        <span class="badge" [class]="examTypeBadge().cls">{{ examTypeBadge().label }}</span>
+        <span class="meta-item">{{ exam().subjectName }}</span>
+        <span class="meta-item">{{ randomModeLabel() }}</span>
+        @if (exam().year) {
+          <span class="meta-item">Năm {{ exam().year }}</span>
+        }
+      </div>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Số câu hỏi</span>
+        <span class="info-value">{{ exam().totalQuestions }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Thời lượng</span>
+        <span class="info-value">{{ exam().durationMinutes ? exam().durationMinutes + ' phút' : 'Không giới hạn' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Người tạo</span>
+        <span class="info-value">{{ exam().createdByName }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Ngày tạo</span>
+        <span class="info-value">{{ exam().createdAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+
+    @if (exam().description) {
+      <div class="detail-description">
+        <h3>Mô tả</h3>
+        <p>{{ exam().description }}</p>
+      </div>
+    }
+
+    <!-- Questions -->
+    <div class="detail-questions">
+      <h3>Danh sách câu hỏi ({{ exam().questions?.length ?? 0 }})</h3>
+
+      @if (exam().questions && exam().questions!.length > 0) {
+        @for (q of exam().questions!; track q.id; let i = $index) {
+          <app-question-card
+            [question]="q"
+            [index]="i + 1"
+            [permissions]="permissions"
+            [enableKatex]="enableKatex()"
+          />
+        }
+      } @else {
+        <div class="no-questions">
+          @if (exam().randomMode !== 'MANUAL') {
+            <p>Câu hỏi sẽ được chọn ngẫu nhiên khi bắt đầu thi.</p>
+          } @else {
+            <p>Chưa có câu hỏi nào được gán cho đề thi này.</p>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="detail-footer">
+      <button class="btn btn-outline-gray" (click)="close.emit()">Đóng</button>
+    </div>
+  </div>
+</div>
