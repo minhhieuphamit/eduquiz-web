@@ -1,0 +1,111 @@
+<div class="room-form-container">
+  <div class="page-header">
+    <div class="header-content">
+      <a routerLink="/teacher/rooms" class="btn-back" title="Quay lại">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <div>
+        <h1 class="page-title">Tạo phòng thi mới</h1>
+        <p class="page-subtitle">Cấu hình thời gian và số lượng học sinh cho phòng thi.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <form (ngSubmit)="onSubmit()" #roomForm="ngForm">
+      
+      <!-- Cột 1 & 2 -->
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label class="form-label" for="title">Tên phòng thi <span class="text-danger">*</span></label>
+          <input 
+            type="text" 
+            id="title" 
+            class="form-control" 
+            placeholder="Ví dụ: Thi cuối kì môn Toán 2024" 
+            [(ngModel)]="title" 
+            name="title" 
+            required
+            autocomplete="off">
+        </div>
+
+        <div class="form-group flex-1">
+          <label class="form-label" for="examId">Chọn đề thi <span class="text-danger">*</span></label>
+          <select 
+            id="examId" 
+            class="form-select" 
+            [(ngModel)]="examId" 
+            name="examId" 
+            required
+            [disabled]="isLoadingExams()">
+            <option value="" disabled selected>-- Chọn đề thi --</option>
+            @for (exam of exams(); track exam.id) {
+              <option [value]="exam.id">{{ exam.title }} ({{ exam.totalQuestions }} câu)</option>
+            }
+          </select>
+          @if (isLoadingExams()) {
+            <small class="text-muted mt-1 d-block">Đang tải danh sách đề thi...</small>
+          }
+        </div>
+      </div>
+
+      <!-- Thời gian -->
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label class="form-label" for="startTime">Thời gian mở phòng <span class="text-danger">*</span></label>
+          <input 
+            type="datetime-local" 
+            id="startTime" 
+            class="form-control" 
+            [(ngModel)]="startTime" 
+            name="startTime" 
+            required>
+        </div>
+
+        <div class="form-group flex-1">
+          <label class="form-label" for="endTime">Thời gian đóng phòng <span class="text-danger">*</span></label>
+          <input 
+            type="datetime-local" 
+            id="endTime" 
+            class="form-control" 
+            [(ngModel)]="endTime" 
+            name="endTime" 
+            required>
+        </div>
+      </div>
+
+      <!-- Cấu hình thêm -->
+      <div class="form-row">
+        <div class="form-group w-50 pe-3">
+          <label class="form-label" for="maxStudents">Số lượng học sinh tối đa</label>
+          <input 
+            type="number" 
+            id="maxStudents" 
+            class="form-control" 
+            placeholder="Không giới hạn" 
+            [(ngModel)]="maxStudents" 
+            name="maxStudents" 
+            min="1">
+          <small class="text-muted mt-1 d-block">Để trống nếu không giới hạn.</small>
+        </div>
+      </div>
+
+      <hr class="form-divider">
+
+      <div class="form-actions">
+        <a routerLink="/teacher/rooms" class="btn btn-outline-gray">Hủy</a>
+        <button 
+          type="submit" 
+          class="btn btn-primary-blue" 
+          [disabled]="isSubmitting() || !roomForm.form.valid">
+          @if (isSubmitting()) {
+            <span class="spinner-sm"></span> Đang tạo...
+          } @else {
+            Tạo phòng thi
+          }
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

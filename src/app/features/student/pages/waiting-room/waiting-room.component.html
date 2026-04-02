@@ -1,0 +1,73 @@
+<div class="waiting-room-container">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Đang kiểm tra phòng thi...</p>
+    </div>
+  } @else if (roomInfo(); as room) {
+    <div class="waiting-card">
+      <div class="card-header border-bottom">
+        <h1 class="page-title">{{ room.title }}</h1>
+        <div class="badges">
+          <span class="badge badge-info">{{ room.subjectName }}</span>
+          <span class="badge" [class.badge-success]="room.status === 'OPEN'" [class.badge-primary]="room.status === 'SCHEDULED'" [class.badge-danger]="!['OPEN','SCHEDULED'].includes(room.status)">
+            {{ room.status === 'OPEN' ? 'Đang mở' : room.status === 'SCHEDULED' ? 'Chưa mở' : 'Đã đóng' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Giáo viên</span>
+            <span class="info-value">{{ room.teacherName }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Thời gian thi</span>
+            <span class="info-value">{{ room.durationMinutes ? room.durationMinutes + ' phút' : 'Không giới hạn' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Thời gian mở phòng</span>
+            <span class="info-value">{{ room.startTime | date:'HH:mm dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Thời gian đóng phòng</span>
+            <span class="info-value">{{ room.endTime | date:'HH:mm dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <div class="status-alert" [class.alert-warning]="room.status === 'SCHEDULED'" [class.alert-success]="room.status === 'OPEN'" [class.alert-danger]="!['OPEN','SCHEDULED'].includes(room.status)">
+          @if (room.status === 'SCHEDULED') {
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div>
+              <strong>Phòng thi chưa mở.</strong> Vui lòng đợi giáo viên mở phòng. Hệ thống sẽ tự động cập nhật sau mỗi 5 giây.
+            </div>
+          } @else if (room.status === 'OPEN') {
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <div>
+              <strong>Phòng thi đã mở!</strong> Bạn có thể bắt đầu làm bài ngay bây giờ.
+            </div>
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div>
+              <strong>Phòng thi đã đóng hoặc kết thúc.</strong> Bạn không thể tham gia nữa.
+            </div>
+          }
+        </div>
+
+        <div class="card-actions">
+          <button class="btn btn-outline-gray" (click)="refresh()" [disabled]="isStarting()">
+            Làm mới
+          </button>
+          <button class="btn btn-primary-blue" (click)="startExam()" [disabled]="room.status !== 'OPEN' || isStarting()">
+            @if (isStarting()) {
+              <span class="spinner-sm"></span> Đang khởi tạo...
+            } @else {
+              Bắt đầu làm bài
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

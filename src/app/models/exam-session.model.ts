@@ -1,28 +1,41 @@
-export interface ExamSession {
-  id: number;
+import { OptionResponse } from './question.model';
+
+export type SessionStatus = 'IN_PROGRESS' | 'SUBMITTED' | 'GRADED';
+
+export interface QuestionWithAnswer {
+  questionId: string;
+  content: string;
+  options: OptionResponse[];
+  selectedAnswer: string | null;
+}
+
+export interface ExamSessionResponse {
+  id: string;
+  examId: string;
   examTitle: string;
   subjectName: string;
   durationMinutes: number;
   startedAt: string;
   submittedAt?: string;
-  status: 'IN_PROGRESS' | 'SUBMITTED' | 'GRADED';
+  status: SessionStatus;
   score?: number;
   correctCount?: number;
   totalQuestions: number;
+  questions?: QuestionWithAnswer[];
 }
 
 export interface StartExamRequest {
-  examId: number;
-  roomId?: number;
+  examId: string;
+  roomId?: string | null;
 }
 
 export interface AnswerRequest {
-  questionId: number;
+  questionId: string;
   selectedAnswer: string;
 }
 
 export interface ExamResultDetail {
-  questionId: number;
+  questionId: string;
   content: string;
   optionA: string;
   optionB: string;
@@ -32,4 +45,16 @@ export interface ExamResultDetail {
   correctAnswer: string;
   isCorrect: boolean;
   explanation: string;
+}
+
+export interface ExamResultResponse {
+  sessionId: string;
+  examTitle: string;
+  subjectName: string;
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  startedAt: string;
+  submittedAt: string;
+  answers: ExamResultDetail[];
 }

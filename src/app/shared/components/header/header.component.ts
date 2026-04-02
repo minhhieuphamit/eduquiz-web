@@ -35,6 +35,11 @@ export class HeaderComponent {
     }
   }
 
+  navigateTo(path: string) {
+    this.isDropdownOpen = false;
+    this.router.navigate([path]);
+  }
+
   navigateToProfile(tab: 'profile' | 'password') {
     this.isDropdownOpen = false;
     this.router.navigate(['/profile'], { 

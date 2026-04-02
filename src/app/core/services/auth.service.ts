@@ -5,6 +5,7 @@ import { AuthResponse } from '../../models/auth.model';
 import { ApiService } from './api.service';
 
 export interface UserInfo {
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -65,6 +66,10 @@ export class AuthService {
     const cached = this.api.getUserFromStorage<UserInfo>();
     if (cached) {
       this.currentUser.set(cached);
+      // Refresh if cached data is missing id (old cache format)
+      if (!cached.id && this.api.getAccessToken()) {
+        this.getMe().subscribe();
+      }
     }
   }
 

@@ -1,0 +1,41 @@
+<div class="join-room-container">
+  <div class="join-card">
+    <div class="card-header border-bottom">
+      <div class="icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      </div>
+      <h2>Tham gia phòng thi</h2>
+      <p>Nhập mã phòng do giáo viên cung cấp để vào phòng thi.</p>
+    </div>
+
+    <div class="card-body">
+      <form (ngSubmit)="onSubmit()" #joinForm="ngForm">
+        <div class="form-group">
+          <label for="roomCode" class="form-label">Mã phòng thi</label>
+          <input 
+            type="text" 
+            id="roomCode" 
+            class="form-control code-input" 
+            placeholder="VD: ABCD12" 
+            [ngModel]="roomCode()" (ngModelChange)="roomCode.set($event)"
+            name="roomCode" 
+            required 
+            minlength="6"
+            maxlength="10"
+            autocomplete="off">
+        </div>
+
+        <button 
+          type="submit" 
+          class="btn btn-primary-blue w-100 mt-4" 
+          [disabled]="isSubmitting() || !joinForm.valid || roomCode().length < 4">
+          @if (isSubmitting()) {
+            <span class="spinner-sm"></span> Đang xử lý...
+          } @else {
+            Vào phòng
+          }
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
