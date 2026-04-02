@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { toast } from 'ngx-sonner';
 import { ExamRoomService, getRoomErrorMessage } from '../../../../core/services/exam-room.service';
 import { ExamService } from '../../../../core/services/exam.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { CreateRoomRequest } from '../../../../models/exam-room.model';
 import { ExamResponse } from '../../../../models/exam.model';
 
@@ -17,6 +18,7 @@ import { ExamResponse } from '../../../../models/exam.model';
 export class RoomFormComponent implements OnInit {
   private roomService = inject(ExamRoomService);
   private examService = inject(ExamService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -26,16 +28,32 @@ export class RoomFormComponent implements OnInit {
   protected startTime = signal('');
   protected endTime = signal('');
   protected maxStudents = signal<number | null>(null);
+  protected customDuration = signal<number | null>(null);
 
   // Selection data
   protected exams = signal<ExamResponse[]>([]);
   protected isLoadingExams = signal(true);
   protected isSubmitting = signal(false);
 
+  protected selectedExam = computed(() =>
+    this.exams().find(e => e.id === this.examId()) ?? null
+  );
+
+  /** PRACTICE exams (ôn tập) allow overriding duration per room */
+  protected isPracticeExam = computed(() =>
+    this.selectedExam()?.examType === 'PRACTICE'
+  );
+
+  /** Show the exam's fixed duration info for OFFICIAL/MOCK */
+  protected fixedDuration = computed(() => {
+    const exam = this.selectedExam();
+    if (!exam || exam.examType === 'PRACTICE') return null;
+    return exam.durationMinutes;
+  });
+
   ngOnInit() {
     this.loadExams();
 
-    // Check query params if navigated from Exam detail
     this.route.queryParams.subscribe(params => {
       if (params['examId']) {
         this.examId.set(params['examId']);
@@ -44,11 +62,13 @@ export class RoomFormComponent implements OnInit {
   }
 
   private loadExams() {
-    // Tạm thời lấy danh sách đề thi public/shared, 
-    // Teacher cũng sẽ fetch các đề thi của mình và đề được share
+    const userId = this.authService.currentUser()?.id;
     this.examService.getAll({ page: 0, size: 200 }).subscribe({
       next: (res) => {
-        this.exams.set(res.data.content);
+        const visible = res.data.content.filter(
+          e => e.createdById === userId || e.isShared
+        );
+        this.exams.set(visible);
         this.isLoadingExams.set(false);
       },
       error: () => {
@@ -56,6 +76,11 @@ export class RoomFormComponent implements OnInit {
         this.isLoadingExams.set(false);
       }
     });
+  }
+
+  protected onExamChange() {
+    // Reset custom duration when exam changes
+    this.customDuration.set(null);
   }
 
   protected onSubmit() {
@@ -85,7 +110,10 @@ export class RoomFormComponent implements OnInit {
       examId: this.examId(),
       startTime: start.toISOString(),
       endTime: end.toISOString(),
-      maxStudents: this.maxStudents() ?? undefined
+      maxStudents: this.maxStudents() ?? undefined,
+      ...(this.isPracticeExam() && this.customDuration()
+        ? { durationMinutes: this.customDuration()! }
+        : {}),
     };
 
     this.isSubmitting.set(true);
