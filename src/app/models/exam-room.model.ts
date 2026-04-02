@@ -24,6 +24,7 @@ export interface CreateRoomRequest {
   startTime: string;
   endTime: string;
   maxStudents?: number;
+  durationMinutes?: number;
 }
 
 export interface JoinRoomRequest {
