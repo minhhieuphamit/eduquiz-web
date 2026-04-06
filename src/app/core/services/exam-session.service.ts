@@ -31,6 +31,16 @@ export class ExamSessionService {
   // Store current session for the exam-taking component
   public currentSession = signal<ExamSessionResponse | null>(null);
 
+  /** GET /exam-sessions/{id} — restore session by ID (used on page reload) */
+  getSession(sessionId: string): Observable<ApiResponse<ExamSessionResponse>> {
+    return this.http.get<ApiResponse<ExamSessionResponse>>(
+      `${this.apiUrl}/${sessionId}`,
+      { headers: this.api.createHeaders() },
+    ).pipe(
+      tap(res => this.currentSession.set(res.data))
+    );
+  }
+
   /** POST /exam-sessions/start — start an exam session */
   startExam(request: StartExamRequest): Observable<ApiResponse<ExamSessionResponse>> {
     return this.http.post<ApiResponse<ExamSessionResponse>>(
@@ -42,10 +52,23 @@ export class ExamSessionService {
     );
   }
 
-  /** PUT /exam-sessions/{id}/answer — auto save answer */
+  /** GET /exam-sessions/current — fetch active session by exam/room (idempotency fallback) */
+  getCurrentSession(examId: string, roomId?: string): Observable<ApiResponse<ExamSessionResponse>> {
+    let url = `${this.apiUrl}/current?examId=${examId}`;
+    if (roomId) url += `&roomId=${roomId}`;
+    
+    return this.http.get<ApiResponse<ExamSessionResponse>>(
+      url,
+      { headers: this.api.createHeaders() },
+    ).pipe(
+      tap(res => this.currentSession.set(res.data))
+    );
+  }
+
+  /** PUT /exam-sessions/{id}/answers — auto save answer */
   saveAnswer(sessionId: string, request: AnswerRequest): Observable<ApiResponse<void>> {
     return this.http.put<ApiResponse<void>>(
-      `${this.api.baseUrl}/exam-sessions/${sessionId}/answer`,
+      `${this.apiUrl}/${sessionId}/answers`,
       request,
       { headers: this.api.createHeaders() },
     );
@@ -69,8 +92,8 @@ export class ExamSessionService {
   }
 
   /** GET /exam-sessions/history — get history of current student */
-  getHistory(page = 0, size = 20): Observable<ApiResponse<PageResponse<ExamSessionResponse>>> {
-    return this.http.get<ApiResponse<PageResponse<ExamSessionResponse>>>(
+  getHistory(page = 0, size = 20): Observable<ApiResponse<PageResponse<ExamResultResponse>>> {
+    return this.http.get<ApiResponse<PageResponse<ExamResultResponse>>>(
       `${this.api.baseUrl}/exam-sessions/history?page=${page}&size=${size}`,
       { headers: this.api.createHeaders() },
     );

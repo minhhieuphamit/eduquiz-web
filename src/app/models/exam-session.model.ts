@@ -1,6 +1,8 @@
 import { OptionResponse } from './question.model';
 
-export type SessionStatus = 'IN_PROGRESS' | 'SUBMITTED' | 'GRADED';
+export type SessionStatus = 'IN_PROGRESS' | 'SUBMITTED' | 'AUTO_SUBMITTED' | 'GRADED';
+
+// ── Active session (used during exam-taking) ────────────────────────────────
 
 export interface QuestionWithAnswer {
   questionId: string;
@@ -16,6 +18,8 @@ export interface ExamSessionResponse {
   subjectName: string;
   durationMinutes: number;
   startedAt: string;
+  expiresAt?: string;
+  remainingSeconds?: number;
   submittedAt?: string;
   status: SessionStatus;
   score?: number;
@@ -24,6 +28,8 @@ export interface ExamSessionResponse {
   questions?: QuestionWithAnswer[];
 }
 
+// ── Requests ────────────────────────────────────────────────────────────────
+
 export interface StartExamRequest {
   examId: string;
   roomId?: string | null;
@@ -31,30 +37,40 @@ export interface StartExamRequest {
 
 export interface AnswerRequest {
   questionId: string;
-  selectedAnswer: string;
+  selectedOptions: string[];
 }
 
-export interface ExamResultDetail {
-  questionId: string;
+// ── Result / History (returned from /result and /history endpoints) ─────────
+
+export interface ExamOptionDetail {
+  label: string;
   content: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
-  selectedAnswer: string | null;
-  correctAnswer: string;
   isCorrect: boolean;
-  explanation: string;
+}
+
+export interface ExamAnswerDetail {
+  questionId: string;
+  questionContent: string;
+  options: ExamOptionDetail[];
+  selectedOptions: string[] | null;  // null = not answered
+  correctOptions: string[];
+  isCorrect: boolean;
+  explanation?: string;
 }
 
 export interface ExamResultResponse {
   sessionId: string;
+  examId: string;
   examTitle: string;
   subjectName: string;
-  score: number;
+  studentName?: string;
+  status: SessionStatus;
+  score: number;            // 0–10 scale
   correctCount: number;
+  incorrectCount: number;
+  unansweredCount: number;
   totalQuestions: number;
   startedAt: string;
   submittedAt: string;
-  answers: ExamResultDetail[];
+  answers: ExamAnswerDetail[];
 }

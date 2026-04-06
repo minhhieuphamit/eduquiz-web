@@ -115,28 +115,56 @@
       width: 160px;
       height: 160px;
       border-radius: 50%;
-      background: #eff6ff;
-      border: 6px solid var(--color-primary-blue, #3b82f6);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin-bottom: 2rem;
-      box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+      margin-bottom: 1rem;
 
       .score-value {
         font-size: 3.5rem;
         font-weight: 800;
-        color: var(--color-primary-blue, #3b82f6);
         line-height: 1;
       }
-      .score-label {
-        font-size: 1rem;
+      .score-out {
+        font-size: 1.125rem;
         font-weight: 500;
-        color: #64748b;
-        margin-top: 0.5rem;
+        opacity: 0.7;
+      }
+
+      &.band-excellent {
+        background: #f0fdf4; border: 6px solid #10b981;
+        color: #059669;
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+      }
+      &.band-good {
+        background: #eff6ff; border: 6px solid #3b82f6;
+        color: #2563eb;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+      }
+      &.band-average {
+        background: #fffbeb; border: 6px solid #f59e0b;
+        color: #d97706;
+        box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2);
+      }
+      &.band-poor {
+        background: #fef2f2; border: 6px solid #ef4444;
+        color: #dc2626;
+        box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2);
       }
     }
+
+    .score-band-label {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      &.label-excellent { color: #059669; }
+      &.label-good      { color: #2563eb; }
+      &.label-average   { color: #d97706; }
+      &.label-poor      { color: #dc2626; }
+    }
+
+    .card-actions { width: 100%; margin-top: 1.5rem; }
 
     .stats-list {
       width: 100%;
@@ -185,16 +213,27 @@
       padding: 1.5rem 2rem;
       border-bottom: 1px solid var(--color-border, #e2e8f0);
       background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
-      h3 {
+      h2 {
         font-size: 1.25rem;
         font-weight: 600;
         color: var(--color-text-main, #334155);
         margin: 0;
       }
+
+      .detail-count {
+        font-size: 0.875rem;
+        color: #64748b;
+        background: #e2e8f0;
+        padding: 0.25rem 0.625rem;
+        border-radius: 999px;
+      }
     }
-    
-    .p-0 { padding: 0; }
+
+    .card-body { padding: 0; }
   }
 
   .question-result-item {
@@ -203,26 +242,48 @@
     padding: 2rem;
     border-bottom: 1px solid var(--color-border, #e2e8f0);
     background: #fff;
+    transition: background 0.15s;
 
     &:last-child { border-bottom: none; }
-
-    &.is-wrong {
-      background: #fffbfc;
-    }
+    &.is-wrong      { background: #fffbfc; }
+    &.is-unanswered { background: #fafafa; }
 
     .question-status-icon {
       flex-shrink: 0;
-      margin-top: 2px;
+      margin-top: 3px;
+
+      .icon-correct   { color: #10b981; }
+      .icon-wrong     { color: #ef4444; }
+      .icon-unanswered{ color: #94a3b8; }
     }
 
     .question-content-wrapper {
       flex: 1;
-      
+      min-width: 0;
+
+      .question-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
       .question-number {
         font-size: 1.125rem;
         font-weight: 700;
         color: var(--color-text-main, #334155);
-        margin: 0 0 1rem;
+        margin: 0;
+      }
+
+      .question-verdict {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+
+        &.verdict-correct  { background: #dcfce7; color: #166534; }
+        &.verdict-wrong    { background: #fee2e2; color: #991b1b; }
+        &.verdict-skip     { background: #f1f5f9; color: #64748b; }
       }
 
       .question-text {
@@ -262,36 +323,42 @@
           flex-shrink: 0;
         }
 
-        /* If student selected this */
-        &.selected {
-          border-color: #cbd5e1;
-          .opt-label { background: #94a3b8; color: #fff; }
-        }
-
-        /* If this is the correct answer */
+        /* Correct answer */
         &.correct {
           background: #ecfdf5;
           border-color: #34d399;
           color: #065f46;
           font-weight: 500;
-
-          .opt-label {
-            background: #10b981;
-            color: #fff;
-          }
+          .opt-label { background: #10b981; color: #fff; }
         }
 
-        /* If student selected wrong answer */
+        /* Student selected this but it's wrong */
         &.selected:not(.correct) {
           background: #fef2f2;
           border-color: #fca5a5;
           color: #991b1b;
           font-weight: 500;
+          .opt-label { background: #ef4444; color: #fff; }
+        }
 
-          .opt-label {
-            background: #ef4444;
-            color: #fff;
-          }
+        /* Student selected the correct answer */
+        &.selected.correct {
+          background: #dcfce7;
+          border-color: #10b981;
+        }
+
+        .opt-text { flex: 1; }
+
+        .opt-badge {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          padding: 0.15rem 0.5rem;
+          border-radius: 999px;
+          flex-shrink: 0;
+          white-space: nowrap;
+
+          &.correct-badge { background: #10b981; color: #fff; }
+          &.wrong-badge   { background: #ef4444; color: #fff; }
         }
       }
     }
@@ -299,16 +366,21 @@
     .explanation-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
+      border-left: 4px solid #3b82f6;
+      border-radius: 0 8px 8px 0;
       padding: 1.25rem;
-      
-      h5 {
-        margin: 0 0 0.5rem;
+
+      .explanation-title {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
         font-size: 0.875rem;
         font-weight: 600;
-        color: #475569;
+        color: #3b82f6;
+        margin-bottom: 0.625rem;
       }
-      div {
+
+      .explanation-body {
         color: #334155;
         font-size: 0.9375rem;
         line-height: 1.6;
@@ -318,9 +390,10 @@
 
   // Utils
   .text-success { color: #10b981; }
-  .text-danger { color: #ef4444; }
-  .text-info { color: #3b82f6; }
-  .mt-4 { margin-top: 1.5rem; }
+  .text-danger  { color: #ef4444; }
+  .text-info    { color: #3b82f6; }
+  .text-muted   { color: #64748b; }
+  .mt-4  { margin-top: 1.5rem; }
   .w-100 { width: 100%; }
 
   .badge {

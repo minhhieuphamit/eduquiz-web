@@ -41,16 +41,19 @@ export interface RoomParticipant {
   submittedAt?: string;
 }
 
+export interface RoomInfo {
+  roomId: string;
+  roomCode: string;
+  title: string;
+  examTitle: string;
+  subjectName: string;
+  status: RoomStatus;
+  totalQuestions: number;
+  totalParticipants: number;
+  submittedCount: number;
+}
+
 export interface RoomResultResponse {
-  roomInfo: {
-    roomId: string;
-    roomCode: string;
-    title: string;
-    examTitle: string;
-    subjectName: string;
-    totalQuestions: number;
-    totalParticipants: number;
-    submittedCount: number;
-  };
+  roomInfo: RoomInfo;
   participants: RoomParticipant[];
 }

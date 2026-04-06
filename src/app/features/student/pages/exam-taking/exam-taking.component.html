@@ -1,110 +1,244 @@
-<div class="exam-taking-container">
-  @if (session(); as sessionData) {
-    <!-- Main Content -->
+<!-- ─── Loading / Restore Session ─────────────────────────────────────── -->
+@if (isLoading()) {
+  <div class="restore-loading">
+    <div class="restore-spinner"></div>
+    <p>Đang tải đề thi...</p>
+  </div>
+}
+
+<!-- ─── Main Exam Layout ────────────────────────────────────────────────── -->
+@if (!isLoading() && session(); as s) {
+  <div class="exam-taking-container" [class.submitting-overlay]="isSubmitting()">
+
+    <!-- LEFT: Question area -->
     <div class="main-content">
+
+      <!-- Exam header -->
       <div class="exam-header">
         <div class="header-info">
-          <h1 class="exam-title">{{ sessionData.examTitle }}</h1>
+          <h1 class="exam-title">{{ s.examTitle }}</h1>
           <div class="exam-meta">
-            <span class="meta-item badge badge-info">{{ sessionData.subjectName }}</span>
+            <span class="badge badge-info">{{ s.subjectName }}</span>
             <span class="meta-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-              {{ sessionData.totalQuestions }} câu hỏi
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              {{ s.totalQuestions }} câu
             </span>
           </div>
         </div>
       </div>
 
-      <div class="test-area">
+      <!-- Question body -->
+      <div class="test-area" role="main" aria-label="Nội dung câu hỏi">
         @if (currentQuestion(); as q) {
-          <div class="question-header">
-            <h3 class="question-number">Câu {{ currentQuestionIndex() + 1 }}</h3>
-          </div>
-          
-          <div class="question-content" [innerHTML]="q.content"></div>
+          <div class="question-block">
+            <div class="question-label" aria-live="polite">
+              Câu {{ currentQuestionIndex() + 1 }} / {{ s.totalQuestions }}
+              @if (savingQuestionId() === q.questionId) {
+                <span class="saving-indicator" aria-label="Đang lưu...">
+                  <span class="saving-dot"></span> Đang lưu...
+                </span>
+              }
+            </div>
 
-          <div class="options-list">
-            @for (opt of q.options; track opt.id; let i = $index) {
-              <div 
-                class="option-item" 
-                [class.selected]="q.selectedAnswer === opt.label"
-                (click)="selectOption(q.questionId, opt.label)">
-                <div class="option-label">{{ getOptionLabel(i) }}</div>
-                <div class="option-text" [innerHTML]="opt.content"></div>
-              </div>
-            }
+            <div class="question-content" [innerHTML]="q.content"></div>
+
+            <div class="options-list" role="radiogroup" [attr.aria-label]="'Đáp án câu ' + (currentQuestionIndex() + 1)">
+              @for (opt of q.options; track opt.id; let i = $index) {
+                <button
+                  type="button"
+                  class="option-item"
+                  [class.selected]="q.selectedAnswer === opt.label"
+                  (click)="selectOption(q.questionId, opt.label)"
+                  [attr.aria-pressed]="q.selectedAnswer === opt.label"
+                  [attr.aria-label]="'Đáp án ' + opt.label + ': ' + opt.content">
+                  <span class="option-label" aria-hidden="true">{{ opt.label }}</span>
+                  <span class="option-text" [innerHTML]="opt.content"></span>
+                </button>
+              }
+            </div>
           </div>
         }
       </div>
 
+      <!-- Footer nav -->
       <div class="test-footer">
-        <button 
-          class="btn btn-outline-gray" 
-          [disabled]="currentQuestionIndex() === 0" 
-          (click)="prevQuestion()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <button
+          class="btn btn-outline-gray"
+          [disabled]="currentQuestionIndex() === 0"
+          (click)="prevQuestion()"
+          aria-label="Câu trước">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
           Câu trước
         </button>
 
-        <button 
-          class="btn btn-primary-blue" 
-          [disabled]="currentQuestionIndex() >= (sessionData.totalQuestions - 1)" 
-          (click)="nextQuestion()">
+        <span class="footer-progress">{{ currentQuestionIndex() + 1 }} / {{ s.totalQuestions }}</span>
+
+        <button
+          class="btn btn-primary-blue"
+          [disabled]="currentQuestionIndex() >= s.totalQuestions - 1"
+          (click)="nextQuestion()"
+          aria-label="Câu tiếp">
           Câu tiếp
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
         </button>
       </div>
-    </div>
+    </div><!-- /main-content -->
 
-    <!-- Sidebar Right -->
-    <div class="sidebar">
+    <!-- RIGHT: Sidebar -->
+    <aside class="sidebar" aria-label="Thanh bên làm bài">
+
       <!-- Timer -->
-      <div class="timer-card" [class.danger]="timeRemaining() > 0 && timeRemaining() < 300">
-        <div class="timer-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <div class="timer-card" [class.danger]="timerWarning()" role="timer" aria-live="polite">
+        <div class="timer-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
         </div>
         <div class="timer-value">{{ formatTime(timeRemaining()) }}</div>
-        <div class="timer-label">Thời gian còn lại</div>
+        <div class="timer-label">
+          @if (timeRemaining() < 0) { Không giới hạn }
+          @else { Thời gian còn lại }
+        </div>
       </div>
 
-      <!-- Overview Grid -->
+      <!-- Question overview grid -->
       <div class="grid-card">
         <div class="grid-header">
-          <h3>Tổng quan</h3>
-          <span class="progress-text">{{ answeredCount() }}/{{ sessionData.totalQuestions }}</span>
+          <h2 class="grid-title">Tổng quan</h2>
+          <span class="progress-text" aria-label="{{ answeredCount() }} trên {{ s.totalQuestions }} câu đã làm">
+            {{ answeredCount() }}&nbsp;/&nbsp;{{ s.totalQuestions }}
+          </span>
         </div>
-        
-        <div class="question-grid">
-          @for (q of sessionData.questions; track q.questionId; let i = $index) {
-            <button 
-              class="grid-btn" 
+
+        <div class="question-grid" role="navigation" aria-label="Điều hướng câu hỏi">
+          @for (q of s.questions; track q.questionId; let i = $index) {
+            <button
+              class="grid-btn"
               [class.active]="i === currentQuestionIndex()"
               [class.answered]="q.selectedAnswer !== null"
-              (click)="goToQuestion(i)">
+              (click)="goToQuestion(i)"
+              [attr.aria-label]="'Câu ' + (i + 1) + (q.selectedAnswer ? ' - đã trả lời' : ' - chưa trả lời')"
+              [attr.aria-current]="i === currentQuestionIndex() ? 'true' : null">
               {{ i + 1 }}
             </button>
           }
         </div>
 
         <div class="grid-footer">
-          <div class="legend">
-            <div class="legend-item"><span class="box answered"></span> Đã chọn</div>
-            <div class="legend-item"><span class="box"></span> Chưa chọn</div>
+          <div class="legend" aria-hidden="true">
+            <div class="legend-item">
+              <span class="legend-box answered"></span>Đã chọn
+            </div>
+            <div class="legend-item">
+              <span class="legend-box"></span>Chưa chọn
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Submit Section -->
+      <!-- Submit section -->
       <div class="submit-card">
-        <button class="btn btn-danger w-100" (click)="submitExam()" [disabled]="isSubmitting()">
+        @if (unansweredCount() > 0) {
+          <p class="unanswered-warning" aria-live="polite">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            Còn {{ unansweredCount() }} câu chưa trả lời
+          </p>
+        }
+        <button
+          class="btn btn-danger w-100"
+          (click)="openSubmitDialog()"
+          [disabled]="isSubmitting()"
+          aria-label="Nộp bài thi">
           @if (isSubmitting()) {
-            <span class="spinner-sm"></span> Đang nộp bài...
+            <span class="spinner-sm" aria-hidden="true"></span>
+            Đang nộp bài...
           } @else {
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
             Nộp bài thi
           }
         </button>
       </div>
+
+    </aside><!-- /sidebar -->
+  </div>
+
+  <!-- ─── Submit Confirm Dialog ──────────────────────────────────────────── -->
+  @if (showSubmitDialog()) {
+    <div
+      class="dialog-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dialog-title"
+      (click)="closeSubmitDialog()">
+      <div class="dialog-card" (click)="$event.stopPropagation()">
+        <div class="dialog-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <h2 class="dialog-title" id="dialog-title">Xác nhận nộp bài</h2>
+
+        <div class="dialog-stats">
+          <div class="stat-row stat-done">
+            <span class="stat-dot done"></span>
+            <span>Đã trả lời: <strong>{{ answeredCount() }}</strong> câu</span>
+          </div>
+          @if (unansweredCount() > 0) {
+            <div class="stat-row stat-missing">
+              <span class="stat-dot missing"></span>
+              <span>Chưa trả lời: <strong>{{ unansweredCount() }}</strong> câu</span>
+            </div>
+          }
+        </div>
+
+        <p class="dialog-desc">
+          @if (unansweredCount() > 0) {
+            Bạn còn <strong>{{ unansweredCount() }} câu</strong> chưa trả lời.
+            Sau khi nộp, bạn không thể thay đổi đáp án.
+          } @else {
+            Bạn đã hoàn thành tất cả câu hỏi.
+            Bấm <strong>Nộp bài</strong> để xác nhận.
+          }
+        </p>
+
+        <div class="dialog-actions">
+          <button class="btn btn-outline-gray" (click)="closeSubmitDialog()">
+            Làm tiếp
+          </button>
+          <button class="btn btn-danger" (click)="confirmSubmit()" autofocus>
+            Nộp bài
+          </button>
+        </div>
+      </div>
     </div>
   }
-</div>
+}
