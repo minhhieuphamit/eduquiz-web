@@ -108,8 +108,8 @@ export class RoomFormComponent implements OnInit {
     const request: CreateRoomRequest = {
       title: this.title().trim(),
       examId: this.examId(),
-      startTime: start.toISOString(),
-      endTime: end.toISOString(),
+      startTime: this.startTime().includes(':00') ? this.startTime() : this.startTime() + ':00',
+      endTime: this.endTime().includes(':00') ? this.endTime() : this.endTime() + ':00',
       maxStudents: this.maxStudents() ?? undefined,
       ...(this.isPracticeExam() && this.customDuration()
         ? { durationMinutes: this.customDuration()! }

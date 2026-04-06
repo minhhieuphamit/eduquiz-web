@@ -21,11 +21,14 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   private sessionService = inject(ExamSessionService);
 
   protected roomId = signal<string>('');
-  protected roomCode = signal<string>(''); // For polling if needed
+  protected roomCode = signal<string>('');
   protected roomInfo = signal<ExamRoom | null>(null);
-  
+
   protected isLoading = signal(true);
   protected isStarting = signal(false);
+
+  // Track whether we came in while room was already OPEN (no transition needed)
+  private initialStatusChecked = false;
 
   private pollSub?: Subscription;
 
@@ -59,31 +62,48 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     this.pollSub?.unsubscribe();
   }
 
-  private loadRoomInfo() {
+  private loadRoomInfo(isPolling = false) {
     const code = this.roomCode();
     if (!code) return;
+
     this.roomService.checkRoomByCode(code).subscribe({
       next: (res) => {
-        this.roomInfo.set(res.data);
+        const prevStatus = this.roomInfo()?.status;
+        const room = res.data;
+        this.roomInfo.set(room);
         this.isLoading.set(false);
+
+        // Auto-start: room just transitioned to OPEN while we were waiting
+        const justOpened = isPolling && prevStatus === 'SCHEDULED' && room.status === 'OPEN';
+
+        // On first load and room is already OPEN — also auto-start
+        const alreadyOpen = !this.initialStatusChecked && room.status === 'OPEN';
+        this.initialStatusChecked = true;
+
+        if (alreadyOpen) {
+          toast.info('Phòng thi đã mở! Bạn có thể bắt đầu làm bài ngay bây giờ.');
+        } else if (justOpened) {
+          toast.info('Phòng thi đã bắt đầu! Hãy nhấn nút Bắt đầu để làm bài.');
+        }
       },
       error: () => {
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
   private startPolling() {
     this.pollSub = interval(5000).subscribe(() => {
-      // Poll every 5s if room is SCHEDULED
-      if (this.roomInfo()?.status === 'SCHEDULED') {
-        this.loadRoomInfo();
+      const status = this.roomInfo()?.status;
+      // Keep polling while SCHEDULED; stop when OPEN/CLOSED (startExam handles navigation)
+      if (status === 'SCHEDULED' || status === 'OPEN') {
+        this.loadRoomInfo(true);
       }
     });
   }
 
   protected refresh() {
-    this.loadRoomInfo();
+    this.loadRoomInfo(false);
   }
 
   protected startExam() {
@@ -97,13 +117,25 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     this.sessionService.startExam({ examId: room.examId, roomId: room.id }).subscribe({
       next: (res) => {
         this.isStarting.set(false);
+        this.pollSub?.unsubscribe();
         const session = res.data;
         this.router.navigate(['/exams', session.id, 'take']);
       },
       error: (err: any) => {
         this.isStarting.set(false);
-        toast.error(getSessionErrorMessage(err));
-      }
+        const code = (err as any)?.error?.code;
+        // If session already started (student refreshed), retrieve via getSession
+        if (code === 6402) {
+          toast.info('Bạn đã có phiên làm bài. Đang chuẩn bị vào...');
+          // Since it's already started, we can try to fetch the session info
+          this.sessionService.getCurrentSession(room.examId, room.id).subscribe({
+            next: (sRes) => this.router.navigate(['/exams', sRes.data.id, 'take']),
+            error: () => toast.warning('Vui lòng tải lại trang để vào phòng thi.')
+          });
+        } else {
+          toast.error(getSessionErrorMessage(err));
+        }
+      },
     });
   }
 }
