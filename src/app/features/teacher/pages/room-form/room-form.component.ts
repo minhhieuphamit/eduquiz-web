@@ -28,7 +28,6 @@ export class RoomFormComponent implements OnInit {
   protected startTime = signal('');
   protected endTime = signal('');
   protected maxStudents = signal<number | null>(null);
-  protected customDuration = signal<number | null>(null);
 
   // Selection data
   protected exams = signal<ExamResponse[]>([]);
@@ -38,18 +37,6 @@ export class RoomFormComponent implements OnInit {
   protected selectedExam = computed(() =>
     this.exams().find(e => e.id === this.examId()) ?? null
   );
-
-  /** PRACTICE exams (ôn tập) allow overriding duration per room */
-  protected isPracticeExam = computed(() =>
-    this.selectedExam()?.examType === 'PRACTICE'
-  );
-
-  /** Show the exam's fixed duration info for OFFICIAL/MOCK */
-  protected fixedDuration = computed(() => {
-    const exam = this.selectedExam();
-    if (!exam || exam.examType === 'PRACTICE') return null;
-    return exam.durationMinutes;
-  });
 
   ngOnInit() {
     this.loadExams();
@@ -78,11 +65,6 @@ export class RoomFormComponent implements OnInit {
     });
   }
 
-  protected onExamChange() {
-    // Reset custom duration when exam changes
-    this.customDuration.set(null);
-  }
-
   protected onSubmit() {
     if (!this.title().trim()) {
       toast.warning('Vui lòng nhập tên phòng thi.');
@@ -108,12 +90,9 @@ export class RoomFormComponent implements OnInit {
     const request: CreateRoomRequest = {
       title: this.title().trim(),
       examId: this.examId(),
-      startTime: this.startTime().includes(':00') ? this.startTime() : this.startTime() + ':00',
-      endTime: this.endTime().includes(':00') ? this.endTime() : this.endTime() + ':00',
+      startTime: this.startTime().length === 16 ? this.startTime() + ':00' : this.startTime(),
+      endTime: this.endTime().length === 16 ? this.endTime() + ':00' : this.endTime(),
       maxStudents: this.maxStudents() ?? undefined,
-      ...(this.isPracticeExam() && this.customDuration()
-        ? { durationMinutes: this.customDuration()! }
-        : {}),
     };
 
     this.isSubmitting.set(true);

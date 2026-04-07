@@ -73,17 +73,24 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         this.roomInfo.set(room);
         this.isLoading.set(false);
 
-        // Auto-start: room just transitioned to OPEN while we were waiting
-        const justOpened = isPolling && prevStatus === 'SCHEDULED' && room.status === 'OPEN';
+        if (!this.initialStatusChecked) {
+          this.initialStatusChecked = true;
+          if (room.status === 'OPEN') {
+            toast.info('Phòng thi đã mở! Bạn có thể bắt đầu làm bài ngay bây giờ.');
+          } else if (room.status === 'IN_PROGRESS') {
+            toast.info('Phòng đang trong thời gian thi. Hãy bắt đầu làm bài.');
+          }
+          return;
+        }
 
-        // On first load and room is already OPEN — also auto-start
-        const alreadyOpen = !this.initialStatusChecked && room.status === 'OPEN';
-        this.initialStatusChecked = true;
-
-        if (alreadyOpen) {
-          toast.info('Phòng thi đã mở! Bạn có thể bắt đầu làm bài ngay bây giờ.');
-        } else if (justOpened) {
-          toast.info('Phòng thi đã bắt đầu! Hãy nhấn nút Bắt đầu để làm bài.');
+        if (isPolling) {
+          if (prevStatus === 'SCHEDULED' && room.status === 'OPEN') {
+            toast.info('Phòng thi đã mở! Hãy nhấn nút Bắt đầu để làm bài.');
+          } else if (prevStatus === 'OPEN' && room.status === 'IN_PROGRESS') {
+            toast.warning('Hết thời gian đăng ký. Hãy nhanh chóng bắt đầu làm bài!');
+          } else if (room.status === 'CLOSED') {
+            toast.error('Phòng thi đã đóng.');
+          }
         }
       },
       error: () => {
@@ -95,7 +102,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   private startPolling() {
     this.pollSub = interval(5000).subscribe(() => {
       const status = this.roomInfo()?.status;
-      // Keep polling while SCHEDULED; stop when OPEN/CLOSED (startExam handles navigation)
+      // Poll while waiting (SCHEDULED or OPEN); stop once exam is in-progress or closed
       if (status === 'SCHEDULED' || status === 'OPEN') {
         this.loadRoomInfo(true);
       }
@@ -108,7 +115,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
   protected startExam() {
     const room = this.roomInfo();
-    if (!room || room.status !== 'OPEN') {
+    if (!room || (room.status !== 'OPEN' && room.status !== 'IN_PROGRESS')) {
       toast.warning('Phòng thi chưa mở hoặc đã kết thúc!');
       return;
     }

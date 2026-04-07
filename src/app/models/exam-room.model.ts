@@ -1,5 +1,6 @@
 export type RoomStatus = 'SCHEDULED' | 'OPEN' | 'IN_PROGRESS' | 'CLOSED';
 export type ParticipantStatus = 'JOINED' | 'WAITING' | 'STARTED' | 'SUBMITTED' | 'TIMEOUT' | 'ABSENT';
+export type AttemptStatus = 'WAITING' | 'STARTED' | 'SUBMITTED';
 
 export interface ExamRoom {
   id: string;
@@ -24,21 +25,27 @@ export interface CreateRoomRequest {
   startTime: string;
   endTime: string;
   maxStudents?: number;
-  durationMinutes?: number;
 }
 
 export interface JoinRoomRequest {
   roomCode: string;
 }
 
-export interface RoomParticipant {
-  userId: string;
-  studentName: string;
-  status: ParticipantStatus;
+export interface AttemptResult {
+  sessionId?: string;
+  attemptNumber: number;
+  status: AttemptStatus;
   score?: number;
   correctCount?: number;
   totalQuestions?: number;
+  startedAt?: string;
   submittedAt?: string;
+}
+
+export interface RoomParticipant {
+  userId: string;
+  studentName: string;
+  attempts: AttemptResult[];
 }
 
 export interface RoomInfo {

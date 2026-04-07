@@ -34,7 +34,7 @@
           <select
             id="examId"
             class="form-select"
-            [ngModel]="examId()" (ngModelChange)="examId.set($event); onExamChange()"
+            [ngModel]="examId()" (ngModelChange)="examId.set($event)"
             name="examId"
             required
             [disabled]="isLoadingExams()">
@@ -51,7 +51,7 @@
 
       <!-- Thông tin đề thi đã chọn -->
       @if (selectedExam(); as exam) {
-        <div class="exam-info-banner" [class.practice]="isPracticeExam()">
+        <div class="exam-info-banner">
           <div class="exam-info-row">
             <span class="exam-info-label">Loại đề:</span>
             <span class="badge" [class.badge-official]="exam.examType === 'OFFICIAL'" [class.badge-mock]="exam.examType === 'MOCK'" [class.badge-practice]="exam.examType === 'PRACTICE'">
@@ -60,12 +60,10 @@
           </div>
           <div class="exam-info-row">
             <span class="exam-info-label">Thời gian làm bài:</span>
-            @if (isPracticeExam()) {
-              <span class="text-muted">Linh hoạt (có thể tùy chỉnh bên dưới)</span>
-            } @else if (exam.durationMinutes) {
+            @if (exam.durationMinutes) {
               <span class="duration-locked">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                {{ exam.durationMinutes }} phút (cố định theo đề thi)
+                {{ exam.durationMinutes }} phút
               </span>
             } @else {
               <span class="text-muted">Không giới hạn</span>
@@ -102,7 +100,7 @@
 
       <!-- Cấu hình thêm -->
       <div class="form-row">
-        <div class="form-group w-50 pe-3">
+        <div class="form-group w-50">
           <label class="form-label" for="maxStudents">Số lượng học sinh tối đa</label>
           <input
             type="number"
@@ -114,22 +112,6 @@
             min="1">
           <small class="text-muted mt-1 d-block">Để trống nếu không giới hạn.</small>
         </div>
-
-        <!-- Chỉ hiện khi là phòng ôn tập -->
-        @if (isPracticeExam()) {
-          <div class="form-group w-50">
-            <label class="form-label" for="customDuration">Thời gian làm bài (phút)</label>
-            <input
-              type="number"
-              id="customDuration"
-              class="form-control"
-              placeholder="Không giới hạn"
-              [ngModel]="customDuration()" (ngModelChange)="customDuration.set($event ? +$event : null)"
-              name="customDuration"
-              min="1">
-            <small class="text-muted mt-1 d-block">Tuỳ chỉnh thời gian làm bài cho phòng ôn tập. Để trống nếu không giới hạn.</small>
-          </div>
-        }
       </div>
 
       <hr class="form-divider">

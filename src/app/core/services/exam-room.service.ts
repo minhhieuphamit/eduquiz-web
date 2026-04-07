@@ -15,6 +15,7 @@ export function getRoomErrorMessage(err: unknown): string {
     5406: 'Phòng thi đã đầy.',
     5407: 'Đề thi chưa được gán cho phòng.',
     5408: 'Trạng thái phòng không hợp lệ.',
+    5409: 'Phòng thi đang trong thời gian thi, không thể tham gia thêm.',
     1400: 'Yêu cầu không hợp lệ.',
     1500: 'Lỗi hệ thống. Vui lòng thử lại sau.',
   };
@@ -51,11 +52,13 @@ export class ExamRoomService {
     );
   }
 
-  /** PUT /rooms/{id}/status — update room status */
-  updateRoomStatus(roomId: string, status: string): Observable<ApiResponse<ExamRoom>> {
+  /** PUT /rooms/{id}/status — update room status (endTime required when reopening) */
+  updateRoomStatus(roomId: string, status: string, endTime?: string): Observable<ApiResponse<ExamRoom>> {
+    const body: Record<string, string> = { status };
+    if (endTime) body['endTime'] = endTime;
     return this.http.put<ApiResponse<ExamRoom>>(
       `${this.api.baseUrl}/rooms/${roomId}/status`,
-      { status },
+      body,
       { headers: this.api.createHeaders() },
     );
   }
