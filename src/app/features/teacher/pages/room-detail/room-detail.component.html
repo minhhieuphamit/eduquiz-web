@@ -29,10 +29,26 @@
       </div>
       <div class="header-actions">
         @if (result.roomInfo.status === 'SCHEDULED' || result.roomInfo.status === 'CLOSED') {
-          <button class="btn btn-primary-blue" (click)="changeStatus('OPEN')" [disabled]="isUpdating()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><path d="M15 2h6"/><path d="M15 8h6"/><path d="M22 17v5"/><path d="M19 19h6"/></svg>
-            Mở phòng thi
-          </button>
+          @if (showReopenForm()) {
+            <!-- Inline reopen form: choose new endTime before reopening a CLOSED room -->
+            <div class="reopen-form">
+              <label class="reopen-label" for="reopenEndTime">Đóng phòng lúc:</label>
+              <input
+                id="reopenEndTime"
+                type="datetime-local"
+                class="reopen-input"
+                [ngModel]="reopenEndTime()"
+                (ngModelChange)="reopenEndTime.set($event)"
+              />
+              <button class="btn btn-primary-blue" (click)="confirmReopen()" [disabled]="isUpdating()">Xác nhận</button>
+              <button class="btn btn-outline-gray" (click)="cancelReopen()" [disabled]="isUpdating()">Hủy</button>
+            </div>
+          } @else {
+            <button class="btn btn-primary-blue" (click)="openRoom()" [disabled]="isUpdating()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><path d="M15 2h6"/><path d="M15 8h6"/><path d="M22 17v5"/><path d="M19 19h6"/></svg>
+              {{ result.roomInfo.status === 'CLOSED' ? 'Mở lại phòng' : 'Mở phòng thi' }}
+            </button>
+          }
         }
         @if (result.roomInfo.status === 'OPEN' || result.roomInfo.status === 'IN_PROGRESS') {
           <button class="btn btn-danger" (click)="changeStatus('CLOSED')" [disabled]="isUpdating()">
@@ -97,40 +113,109 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th style="width: 60px;" class="text-center">STT</th>
+              <th style="width: 44px;" class="text-center">STT</th>
               <th>Họ tên</th>
-              <th style="width: 150px;">Trạng thái</th>
-              <th style="width: 150px;" class="text-center">Nộp bài lúc</th>
-              <th style="width: 120px;" class="text-center">Số câu đúng</th>
-              <th style="width: 100px;" class="text-center">Điểm số</th>
+              <th style="width: 80px;" class="text-center">Lần thi</th>
+              <th style="width: 130px;">Trạng thái</th>
+              <th style="width: 155px;" class="text-center">Bắt đầu / Nộp bài</th>
+              <th style="width: 110px;" class="text-center">Số câu đúng</th>
+              <th style="width: 90px;" class="text-center">Điểm số</th>
             </tr>
           </thead>
           <tbody>
-            @for (p of result.participants; track p.userId; let i = $index) {
-              <tr>
-                <td class="text-center">{{ i + 1 }}</td>
-                <td class="font-medium">{{ p.studentName }}</td>
+            @for (p of result.participants; track p.userId; let pi = $index) {
+              <!-- ── Summary row (always visible) ── -->
+              @let best = bestAttempt(p);
+              @let hasMultiple = p.attempts.length > 1;
+              @let expanded = isExpanded(p.userId);
+              <tr class="summary-row" [class.summary-row--expanded]="expanded">
+                <td class="text-center text-muted">{{ pi + 1 }}</td>
                 <td>
-                  <span class="badge" [class]="participantStatusBadge(p.status).cls">{{ participantStatusBadge(p.status).label }}</span>
+                  <div class="student-name-cell">
+                    <span class="font-medium">{{ p.studentName }}</span>
+                    @if (hasMultiple) {
+                      <button
+                        class="expand-btn"
+                        (click)="toggleExpand(p.userId)"
+                        [attr.aria-expanded]="expanded"
+                        [attr.aria-label]="expanded ? 'Thu gọn lịch sử thi' : 'Xem tất cả lần thi'"
+                        title="{{ expanded ? 'Thu gọn' : 'Xem tất cả ' + p.attempts.length + ' lần thi' }}">
+                        <span class="attempt-count">{{ p.attempts.length }} lần</span>
+                        <svg class="chevron" [class.chevron--up]="expanded"
+                          xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                          aria-hidden="true">
+                          <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                      </button>
+                    }
+                  </div>
+                </td>
+                <!-- Show best attempt data in summary row -->
+                <td class="text-center text-muted text-sm">
+                  {{ hasMultiple ? (expanded ? '—' : 'Tốt nhất') : best.attemptNumber }}
+                </td>
+                <td>
+                  <span class="badge" [class]="attemptStatusBadge(best.status).cls">
+                    {{ attemptStatusBadge(best.status).label }}
+                  </span>
                 </td>
                 <td class="text-center text-muted text-sm">
-                  {{ p.submittedAt ? (p.submittedAt | date:'HH:mm:ss dd/MM') : '—' }}
+                  @if (best.status === 'WAITING') { — }
+                  @else if (best.submittedAt) {
+                    {{ best.startedAt | date:'HH:mm' }} → {{ best.submittedAt | date:'HH:mm dd/MM' }}
+                  } @else {
+                    {{ best.startedAt | date:'HH:mm dd/MM' }}
+                  }
                 </td>
                 <td class="text-center text-muted">
-                  @if (p.correctCount !== undefined && p.totalQuestions !== undefined) {
-                    {{ p.correctCount }} / {{ p.totalQuestions }}
-                  } @else {
-                    —
-                  }
+                  @if (best.correctCount !== undefined && best.status !== 'WAITING') {
+                    {{ best.correctCount }} / {{ best.totalQuestions }}
+                  } @else { — }
                 </td>
                 <td class="text-center">
-                  @if (p.score !== undefined) {
-                    <span class="score-badge">{{ p.score | number:'1.0-1' }}</span>
-                  } @else {
-                    <span class="text-muted">—</span>
-                  }
+                  @if (best.score !== undefined && best.status === 'SUBMITTED') {
+                    <span class="score-badge">{{ best.score | number:'1.0-1' }}</span>
+                  } @else { <span class="text-muted">—</span> }
                 </td>
               </tr>
+
+              <!-- ── Expanded attempt rows ── -->
+              @if (expanded) {
+                @for (a of p.attempts; track a.attemptNumber) {
+                  <tr class="attempt-row">
+                    <td></td>
+                    <td>
+                      <span class="attempt-label">Lần {{ a.attemptNumber }}</span>
+                    </td>
+                    <td class="text-center text-muted text-sm">{{ a.attemptNumber }}</td>
+                    <td>
+                      <span class="badge" [class]="attemptStatusBadge(a.status).cls">
+                        {{ attemptStatusBadge(a.status).label }}
+                      </span>
+                    </td>
+                    <td class="text-center text-muted text-sm">
+                      @if (a.status === 'WAITING') { — }
+                      @else if (a.submittedAt) {
+                        {{ a.startedAt | date:'HH:mm' }} → {{ a.submittedAt | date:'HH:mm dd/MM' }}
+                      } @else {
+                        {{ a.startedAt | date:'HH:mm dd/MM' }}
+                      }
+                    </td>
+                    <td class="text-center text-muted">
+                      @if (a.correctCount !== undefined && a.status !== 'WAITING') {
+                        {{ a.correctCount }} / {{ a.totalQuestions }}
+                      } @else { — }
+                    </td>
+                    <td class="text-center">
+                      @if (a.score !== undefined && a.status === 'SUBMITTED') {
+                        <span class="score-badge">{{ a.score | number:'1.0-1' }}</span>
+                      } @else { <span class="text-muted">—</span> }
+                    </td>
+                  </tr>
+                }
+              }
             }
           </tbody>
         </table>

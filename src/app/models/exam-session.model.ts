@@ -63,7 +63,12 @@ export interface ExamResultResponse {
   examId: string;
   examTitle: string;
   subjectName: string;
+  examCreatorName?: string;   // who created the exam
   studentName?: string;
+  // Room context (null when taken outside a room)
+  roomTitle?: string;
+  roomCode?: string;
+  teacherName?: string;       // who created the room
   status: SessionStatus;
   score: number;            // 0–10 scale
   correctCount: number;

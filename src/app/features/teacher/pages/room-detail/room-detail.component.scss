@@ -179,7 +179,89 @@
       color: var(--color-text-main, #334155);
     }
     tr:last-child td { border-bottom: none; }
-    tr:hover { background: #f8fafc; }
+    tr:hover td { background: #f8fafc; }
+
+    // First row of a student group — top border separator
+    tr.attempt-first-row td {
+      border-top: 2px solid #e2e8f0;
+    }
+    // Extra attempt rows: slightly indented background, smaller padding
+    tr.attempt-extra-row td {
+      background: #fafafa;
+      padding-top: 0.625rem;
+      padding-bottom: 0.625rem;
+    }
+
+    .indent-name { margin-right: 0.25rem; }
+
+    // ── Accordion: summary row ──────────────────────────────────────
+    tr.summary-row {
+      td { background: #fff; }
+      &:hover td { background: #f8fafc; }
+      &--expanded td { background: #f8fafc; border-bottom-color: transparent; }
+    }
+
+    // ── Accordion: expanded attempt sub-rows ────────────────────────
+    tr.attempt-row {
+      td {
+        background: #f8fafc;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom-color: #f1f5f9;
+        font-size: 0.8125rem;
+      }
+      &:last-of-type td { border-bottom: 1px solid var(--color-border, #e2e8f0); }
+    }
+  }
+
+  // ── Student name cell with expand toggle ──────────────────────────
+  .student-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  // ── Expand button ("N lần ▾") ─────────────────────────────────────
+  .expand-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.5rem 0.125rem 0.625rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+    line-height: 1.4;
+
+    &:hover {
+      background: #e2e8f0;
+      border-color: #cbd5e1;
+    }
+  }
+
+  .attempt-count {
+    font-variant-numeric: tabular-nums;
+  }
+
+  // ── Chevron icon (rotates when expanded) ──────────────────────────
+  .chevron {
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+
+    &--up { transform: rotate(180deg); }
+  }
+
+  // ── "Lần N" label in attempt sub-rows ─────────────────────────────
+  .attempt-label {
+    padding-left: 1.5rem;
+    color: var(--color-text-muted, #64748b);
+    font-size: 0.8125rem;
+    font-style: italic;
   }
 
   // Badges & Common utilities
@@ -238,6 +320,21 @@
     cursor: pointer;
     transition: all 0.2s;
     border: 1px solid transparent;
+    white-space: nowrap;
+
+    &:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    &-primary-blue {
+      background: #3b82f6;
+      color: #fff;
+      &:hover:not(:disabled) { background: #2563eb; }
+    }
+
+    &-danger {
+      background: #ef4444;
+      color: #fff;
+      &:hover:not(:disabled) { background: #dc2626; }
+    }
 
     &-outline-gray {
       background: #fff;
@@ -245,6 +342,33 @@
       color: #334155;
       &:hover:not(:disabled) { background: #f8fafc; }
     }
+  }
+
+  .reopen-form {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+  }
+
+  .reopen-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-muted, #64748b);
+    white-space: nowrap;
+  }
+
+  .reopen-input {
+    height: 2.5rem;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md, 0.375rem);
+    outline: none;
+    color: #334155;
+    background: #fff;
+
+    &:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
   }
 
   .empty-state {
